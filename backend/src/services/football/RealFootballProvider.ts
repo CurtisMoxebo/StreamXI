@@ -247,27 +247,31 @@ export class RealFootballProvider implements IFootballDataProvider {
 
     const startingXI: PitchPlayer[] = starters.slice(0, 11).map((a, i) => {
       const coords = mapCoordinates(i, isHome);
+      const athleteName = a.displayName || a.fullName || a.shortName || `Player ${i + 1}`;
       return {
         id: String(a.id || `p-${isHome ? 'h' : 'a'}-${i}`),
-        name: a.displayName || a.fullName || a.shortName || `Player ${i + 1}`,
+        name: athleteName,
         number: parseInt(a.jersey) || jerseyDefaults[i] || i + 1,
         position: a.position?.abbreviation || (i === 0 ? 'GK' : (i <= 4 ? 'DF' : (i <= 7 ? 'MF' : 'FW'))),
-        image: a.headshot?.href || `https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/${a.id}.png&w=96&h=96&scale=crop`,
+        image: a.headshot?.href || `https://i.pravatar.cc/150?u=${encodeURIComponent(athleteName)}`,
         gridX: coords.gridX,
         gridY: coords.gridY,
       };
     });
 
     const subsPool = athletes.filter((a) => !usedIds.has(a.id)).slice(0, 9);
-    const substitutes: PitchPlayer[] = subsPool.map((a, i) => ({
-      id: String(a.id || `sub-${isHome ? 'h' : 'a'}-${i}`),
-      name: a.displayName || a.fullName || a.shortName || `Sub ${i + 1}`,
-      number: parseInt(a.jersey) || 12 + i,
-      position: a.position?.abbreviation || 'SUB',
-      image: a.headshot?.href || `https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/${a.id}.png&w=96&h=96&scale=crop`,
-      gridX: 0,
-      gridY: 0,
-    }));
+    const substitutes: PitchPlayer[] = subsPool.map((a, i) => {
+      const athleteName = a.displayName || a.fullName || a.shortName || `Sub ${i + 1}`;
+      return {
+        id: String(a.id || `sub-${isHome ? 'h' : 'a'}-${i}`),
+        name: athleteName,
+        number: parseInt(a.jersey) || 12 + i,
+        position: a.position?.abbreviation || 'SUB',
+        image: a.headshot?.href || `https://i.pravatar.cc/150?u=${encodeURIComponent(athleteName)}`,
+        gridX: 0,
+        gridY: 0,
+      };
+    });
 
     return {
       formation: '4-3-3',
@@ -537,12 +541,13 @@ export class RealFootballProvider implements IFootballDataProvider {
     ).map((p: any, i: number) => {
       const coords = mapCoordinates(i, 11, isHome);
       const athleteId = p.athlete?.id;
+      const athleteName = p.athlete?.displayName || p.athlete?.shortName || `Player ${i + 1}`;
       return {
         id: String(athleteId || `p-${isHome ? 'h' : 'a'}-${i}`),
-        name: p.athlete?.displayName || p.athlete?.shortName || `Player ${i + 1}`,
+        name: athleteName,
         number: parseInt(p.jersey) || i + 1,
         position: p.position?.abbreviation || (i === 0 ? 'GK' : 'MF'),
-        image: p.athlete?.headshot?.href || (athleteId ? `https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/${athleteId}.png&w=96&h=96&scale=crop` : undefined),
+        image: p.athlete?.headshot?.href || `https://i.pravatar.cc/150?u=${encodeURIComponent(athleteName)}`,
         gridX: coords.gridX,
         gridY: coords.gridY,
       };
@@ -552,12 +557,13 @@ export class RealFootballProvider implements IFootballDataProvider {
       subAthletes.length > 0 ? subAthletes : athletes.slice(11, 20)
     ).map((p: any, i: number) => {
       const athleteId = p.athlete?.id;
+      const athleteName = p.athlete?.displayName || p.athlete?.shortName || `Sub ${i + 1}`;
       return {
         id: String(athleteId || `sub-${isHome ? 'h' : 'a'}-${i}`),
-        name: p.athlete?.displayName || p.athlete?.shortName || `Sub ${i + 1}`,
+        name: athleteName,
         number: parseInt(p.jersey) || 12 + i,
         position: p.position?.abbreviation || 'SUB',
-        image: p.athlete?.headshot?.href || (athleteId ? `https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/${athleteId}.png&w=96&h=96&scale=crop` : undefined),
+        image: p.athlete?.headshot?.href || `https://i.pravatar.cc/150?u=${encodeURIComponent(athleteName)}`,
         gridX: 0,
         gridY: 0,
       };

@@ -7,17 +7,13 @@ interface LineupsTabProps {
   matchId: string;
 }
 
-export const DEFAULT_PLAYER_AVATAR =
-  'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="%2394a3b8"><circle cx="32" cy="24" r="14"/><path d="M14 54c0-9.94 8.06-18 18-18s18 8.06 18 18v2H14v-2z"/></svg>';
+export const DEFAULT_PLAYER_AVATAR = 'https://i.pravatar.cc/150?img=12';
 
 export function getPlayerFaceUrl(player: PitchPlayer): string {
   if (player.image && player.image.startsWith('http')) {
     return player.image;
   }
-  if (player.id && /^\d+$/.test(player.id)) {
-    return `https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/${player.id}.png&w=96&h=96&scale=crop`;
-  }
-  return DEFAULT_PLAYER_AVATAR;
+  return `https://i.pravatar.cc/150?u=${encodeURIComponent(player.name || player.id)}`;
 }
 
 /**
@@ -162,21 +158,20 @@ export const LineupsTab: React.FC<LineupsTabProps> = ({ matchId }) => {
               className="absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group cursor-pointer z-10"
               title={`${player.name} (#${player.number}) - ${player.position}`}
             >
-              <div className="relative">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-surface-900 border-2 border-brand-400 overflow-hidden shadow-lg group-hover:scale-110 group-hover:border-white transition-all flex items-center justify-center">
-                  <img
-                    src={faceUrl}
-                    alt={player.name}
-                    className="w-full h-full object-cover object-top"
-                    loading="lazy"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = DEFAULT_PLAYER_AVATAR;
-                    }}
-                  />
-                </div>
-                <span className="absolute -bottom-1 -right-1 min-w-[15px] h-3.5 sm:min-w-[18px] sm:h-4 px-1 rounded-full bg-brand-500 border border-white text-slate-950 font-black text-[8px] sm:text-[9px] leading-tight flex items-center justify-center shadow">
-                  {player.number}
-                </span>
+              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-surface-900 border-2 border-brand-400 overflow-hidden shadow-lg group-hover:scale-110 group-hover:border-white transition-all flex items-center justify-center">
+                <img
+                  src={faceUrl}
+                  alt={player.name}
+                  className="w-full h-full object-cover object-top"
+                  loading="lazy"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    const fallback = `https://i.pravatar.cc/150?u=${encodeURIComponent(player.name || player.id)}`;
+                    if (target.src !== fallback) {
+                      target.src = fallback;
+                    }
+                  }}
+                />
               </div>
               <span className="text-[8px] sm:text-[10px] font-bold text-white bg-surface-900/95 px-1.5 py-0.5 rounded-md mt-1 shadow-md whitespace-nowrap border border-white/10 max-w-[85px] sm:max-w-[110px] truncate text-center">
                 {displayName}
@@ -196,21 +191,20 @@ export const LineupsTab: React.FC<LineupsTabProps> = ({ matchId }) => {
               className="absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group cursor-pointer z-10"
               title={`${player.name} (#${player.number}) - ${player.position}`}
             >
-              <div className="relative">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-surface-900 border-2 border-accent-cyan overflow-hidden shadow-lg group-hover:scale-110 group-hover:border-white transition-all flex items-center justify-center">
-                  <img
-                    src={faceUrl}
-                    alt={player.name}
-                    className="w-full h-full object-cover object-top"
-                    loading="lazy"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = DEFAULT_PLAYER_AVATAR;
-                    }}
-                  />
-                </div>
-                <span className="absolute -bottom-1 -right-1 min-w-[15px] h-3.5 sm:min-w-[18px] sm:h-4 px-1 rounded-full bg-accent-cyan border border-white text-slate-950 font-black text-[8px] sm:text-[9px] leading-tight flex items-center justify-center shadow">
-                  {player.number}
-                </span>
+              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-surface-900 border-2 border-accent-cyan overflow-hidden shadow-lg group-hover:scale-110 group-hover:border-white transition-all flex items-center justify-center">
+                <img
+                  src={faceUrl}
+                  alt={player.name}
+                  className="w-full h-full object-cover object-top"
+                  loading="lazy"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    const fallback = `https://i.pravatar.cc/150?u=${encodeURIComponent(player.name || player.id)}`;
+                    if (target.src !== fallback) {
+                      target.src = fallback;
+                    }
+                  }}
+                />
               </div>
               <span className="text-[8px] sm:text-[10px] font-bold text-white bg-surface-900/95 px-1.5 py-0.5 rounded-md mt-1 shadow-md whitespace-nowrap border border-white/10 max-w-[85px] sm:max-w-[110px] truncate text-center">
                 {displayName}
@@ -251,7 +245,11 @@ export const LineupsTab: React.FC<LineupsTabProps> = ({ matchId }) => {
                         alt={sub.name}
                         className="w-full h-full object-cover object-top"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = DEFAULT_PLAYER_AVATAR;
+                          const target = e.target as HTMLImageElement;
+                          const fallback = `https://i.pravatar.cc/150?u=${encodeURIComponent(sub.name || sub.id)}`;
+                          if (target.src !== fallback) {
+                            target.src = fallback;
+                          }
                         }}
                       />
                     </div>
@@ -291,7 +289,11 @@ export const LineupsTab: React.FC<LineupsTabProps> = ({ matchId }) => {
                         alt={sub.name}
                         className="w-full h-full object-cover object-top"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = DEFAULT_PLAYER_AVATAR;
+                          const target = e.target as HTMLImageElement;
+                          const fallback = `https://i.pravatar.cc/150?u=${encodeURIComponent(sub.name || sub.id)}`;
+                          if (target.src !== fallback) {
+                            target.src = fallback;
+                          }
                         }}
                       />
                     </div>
