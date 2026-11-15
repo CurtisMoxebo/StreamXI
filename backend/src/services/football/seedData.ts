@@ -1,0 +1,313 @@
+import { Match, MatchLineups, MatchStatsResponse } from '../../models/index.js';
+
+export const COMPETITIONS = {
+  UCL: {
+    id: 'ucl',
+    name: 'UEFA Champions League',
+    slug: 'champions-league',
+    country: 'Europe',
+    countryCode: 'eu',
+    logo: '⭐',
+    order: 1,
+  },
+  EPL: {
+    id: 'epl',
+    name: 'Premier League',
+    slug: 'premier-league',
+    country: 'England',
+    countryCode: 'en',
+    logo: '🦁',
+    order: 2,
+  },
+  LALIGA: {
+    id: 'laliga',
+    name: 'La Liga EA Sports',
+    slug: 'la-liga',
+    country: 'Spain',
+    countryCode: 'es',
+    logo: '🇪🇸',
+    order: 3,
+  },
+  SERIEA: {
+    id: 'seriea',
+    name: 'Serie A',
+    slug: 'serie-a',
+    country: 'Italy',
+    countryCode: 'it',
+    logo: '🇮🇹',
+    order: 4,
+  },
+  BUNDESLIGA: {
+    id: 'bundesliga',
+    name: 'Bundesliga',
+    slug: 'bundesliga',
+    country: 'Germany',
+    countryCode: 'de',
+    logo: '🇩🇪',
+    order: 5,
+  },
+  LIGUE1: {
+    id: 'ligue1',
+    name: 'Ligue 1 McDonald\'s',
+    slug: 'ligue-1',
+    country: 'France',
+    countryCode: 'fr',
+    logo: '🇫🇷',
+    order: 6,
+  },
+};
+
+export function getSeedMatches(baseDateString: string): Match[] {
+  // Normalize date string (YYYY-MM-DD)
+  const d = baseDateString ? baseDateString.substring(0, 10) : new Date().toISOString().substring(0, 10);
+
+  return [
+    // 1. UCL: Real Madrid vs Man City (LIVE)
+    {
+      id: 'ucl-rm-mci',
+      competition: COMPETITIONS.UCL,
+      homeTeam: { id: 'rm', name: 'Real Madrid', code: 'RMA', country: 'Spain', logo: '👑' },
+      awayTeam: { id: 'mci', name: 'Manchester City', code: 'MCI', country: 'England', logo: '⚡' },
+      kickoffTime: `${d}T20:00:00.000Z`,
+      status: 'live',
+      liveMinute: 68,
+      score: { home: 2, away: 2 },
+      scorers: [
+        { id: 'sc-1', playerName: 'Vinicius Jr', minute: 12, teamId: 'rm' },
+        { id: 'sc-2', playerName: 'Rodri', minute: 28, teamId: 'mci' },
+        { id: 'sc-3', playerName: 'Jude Bellingham', minute: 56, teamId: 'rm' },
+        { id: 'sc-4', playerName: 'Erling Haaland', minute: 64, teamId: 'mci' },
+      ],
+      redCards: [
+        { id: 'rc-1', playerName: 'Rodri', minute: 54, teamId: 'mci' },
+      ],
+      venue: 'Santiago Bernabéu, Madrid',
+    },
+    // 2. UCL: Arsenal vs Bayern Munich (LIVE)
+    {
+      id: 'ucl-ars-bay',
+      competition: COMPETITIONS.UCL,
+      homeTeam: { id: 'ars', name: 'Arsenal', code: 'ARS', country: 'England', logo: '🔴' },
+      awayTeam: { id: 'bay', name: 'Bayern Munich', code: 'BAY', country: 'Germany', logo: '⚪' },
+      kickoffTime: `${d}T20:00:00.000Z`,
+      status: 'live',
+      liveMinute: 42,
+      score: { home: 1, away: 0 },
+      scorers: [
+        { id: 'sc-5', playerName: 'Bukayo Saka', minute: 29, teamId: 'ars' },
+      ],
+      redCards: [],
+      venue: 'Emirates Stadium, London',
+    },
+    // 3. EPL: Liverpool vs Chelsea (UPCOMING - in < 30 mins)
+    {
+      id: 'epl-liv-che',
+      competition: COMPETITIONS.EPL,
+      homeTeam: { id: 'liv', name: 'Liverpool', code: 'LIV', country: 'England', logo: '🔴' },
+      awayTeam: { id: 'che', name: 'Chelsea', code: 'CHE', country: 'England', logo: '🔵' },
+      kickoffTime: `${d}T20:30:00.000Z`,
+      status: 'upcoming',
+      scorers: [],
+      redCards: [],
+      venue: 'Anfield, Liverpool',
+    },
+    // 4. EPL: Tottenham vs Manchester United (FINISHED)
+    {
+      id: 'epl-tot-mun',
+      competition: COMPETITIONS.EPL,
+      homeTeam: { id: 'tot', name: 'Tottenham Hotspur', code: 'TOT', country: 'England', logo: '⚪' },
+      awayTeam: { id: 'mun', name: 'Manchester United', code: 'MUN', country: 'England', logo: '👹' },
+      kickoffTime: `${d}T16:30:00.000Z`,
+      status: 'finished',
+      score: { home: 1, away: 3 },
+      scorers: [
+        { id: 'sc-6', playerName: 'Son Heung-min', minute: 22, teamId: 'tot' },
+        { id: 'sc-7', playerName: 'Bruno Fernandes', minute: 34, teamId: 'mun' },
+        { id: 'sc-8', playerName: 'Rasmus Hojlund', minute: 61, teamId: 'mun' },
+        { id: 'sc-9', playerName: 'Marcus Rashford', minute: 88, teamId: 'mun' },
+      ],
+      redCards: [
+        { id: 'rc-2', playerName: 'Cristian Romero', minute: 71, teamId: 'tot' },
+      ],
+      venue: 'Tottenham Hotspur Stadium, London',
+    },
+    // 5. EPL: Aston Villa vs Newcastle (UPCOMING)
+    {
+      id: 'epl-avl-new',
+      competition: COMPETITIONS.EPL,
+      homeTeam: { id: 'avl', name: 'Aston Villa', code: 'AVL', country: 'England', logo: '🦁' },
+      awayTeam: { id: 'new', name: 'Newcastle United', code: 'NEW', country: 'England', logo: '⚫' },
+      kickoffTime: `${d}T22:00:00.000Z`,
+      status: 'upcoming',
+      scorers: [],
+      redCards: [],
+      venue: 'Villa Park, Birmingham',
+    },
+    // 6. La Liga: Barcelona vs Atletico Madrid (UPCOMING)
+    {
+      id: 'laliga-bar-atm',
+      competition: COMPETITIONS.LALIGA,
+      homeTeam: { id: 'bar', name: 'FC Barcelona', code: 'BAR', country: 'Spain', logo: '🔵🔴' },
+      awayTeam: { id: 'atm', name: 'Atletico Madrid', code: 'ATM', country: 'Spain', logo: '🔴⚪' },
+      kickoffTime: `${d}T21:00:00.000Z`,
+      status: 'upcoming',
+      scorers: [],
+      redCards: [],
+      venue: 'Estadi Olímpic Lluís Companys, Barcelona',
+    },
+    // 7. La Liga: Real Sociedad vs Athletic Club (FINISHED)
+    {
+      id: 'laliga-rso-ath',
+      competition: COMPETITIONS.LALIGA,
+      homeTeam: { id: 'rso', name: 'Real Sociedad', code: 'RSO', country: 'Spain', logo: '🔵' },
+      awayTeam: { id: 'ath', name: 'Athletic Club', code: 'ATH', country: 'Spain', logo: '🦁' },
+      kickoffTime: `${d}T14:00:00.000Z`,
+      status: 'finished',
+      score: { home: 1, away: 1 },
+      scorers: [
+        { id: 'sc-10', playerName: 'Oyarzabal', minute: 40, teamId: 'rso' },
+        { id: 'sc-11', playerName: 'Inaki Williams', minute: 78, teamId: 'ath' },
+      ],
+      redCards: [],
+      venue: 'Reale Arena, San Sebastian',
+    },
+    // 8. Ligue 1: Paris Saint-Germain vs Marseille (FINISHED)
+    {
+      id: 'l1-psg-om',
+      competition: COMPETITIONS.LIGUE1,
+      homeTeam: { id: 'psg', name: 'Paris Saint-Germain', code: 'PSG', country: 'France', logo: '🗼' },
+      awayTeam: { id: 'om', name: 'Olympique de Marseille', code: 'OM', country: 'France', logo: '⚪' },
+      kickoffTime: `${d}T17:00:00.000Z`,
+      status: 'finished',
+      score: { home: 3, away: 0 },
+      scorers: [
+        { id: 'sc-12', playerName: 'Joao Neves', minute: 7, teamId: 'psg' },
+        { id: 'sc-13', playerName: 'Balerdi (OG)', minute: 29, teamId: 'psg', isOwnGoal: true },
+        { id: 'sc-14', playerName: 'Bradley Barcola', minute: 40, teamId: 'psg' },
+      ],
+      redCards: [
+        { id: 'rc-3', playerName: 'Amine Harit', minute: 20, teamId: 'om' },
+      ],
+      venue: 'Parc des Princes, Paris',
+    },
+  ];
+}
+
+// Generate football pitch coordinates for standard 4-3-3 formation
+function generatePitchStarters(teamName: string, prefix: string, isHome: boolean) {
+  // isHome plays from left to right (X: 10 to 45), away plays right to left (X: 90 down to 55)
+  const gkX = isHome ? 12 : 88;
+  const defX = isHome ? 25 : 75;
+  const midX = isHome ? 38 : 62;
+  const attX = isHome ? 48 : 52;
+
+  return [
+    { id: `${prefix}-1`, name: `${teamName} GK`, number: 1, position: 'GK', gridX: gkX, gridY: 50 },
+    { id: `${prefix}-2`, name: 'Right Back', number: 2, position: 'RB', gridX: defX, gridY: 20 },
+    { id: `${prefix}-3`, name: 'Center Back L', number: 3, position: 'CB', gridX: defX, gridY: 40 },
+    { id: `${prefix}-4`, name: 'Center Back R', number: 4, position: 'CB', gridX: defX, gridY: 60 },
+    { id: `${prefix}-5`, name: 'Left Back', number: 5, position: 'LB', gridX: defX, gridY: 80 },
+    { id: `${prefix}-6`, name: 'Def Midfielder', number: 6, position: 'DM', gridX: midX, gridY: 50 },
+    { id: `${prefix}-7`, name: 'Central Mid L', number: 8, position: 'CM', gridX: midX, gridY: 30 },
+    { id: `${prefix}-8`, name: 'Central Mid R', number: 10, position: 'CM', gridX: midX, gridY: 70 },
+    { id: `${prefix}-9`, name: 'Right Winger', number: 7, position: 'RW', gridX: attX, gridY: 20 },
+    { id: `${prefix}-10`, name: 'Striker', number: 9, position: 'ST', gridX: attX, gridY: 50 },
+    { id: `${prefix}-11`, name: 'Left Winger', number: 11, position: 'LW', gridX: attX, gridY: 80 },
+  ];
+}
+
+export function getSeedLineups(matchId: string): MatchLineups {
+  const isConfirmed = matchId.includes('rm') || matchId.includes('psg') || matchId.includes('tot');
+
+  return {
+    matchId,
+    home: {
+      formation: '4-3-3',
+      confirmed: isConfirmed,
+      coach: 'Carlo Ancelotti',
+      startingXI: generatePitchStarters('Home Team', 'h', true),
+      substitutes: [
+        { id: 'sub-h-1', name: 'Sub GK', number: 13, position: 'GK', gridX: 0, gridY: 0 },
+        { id: 'sub-h-2', name: 'Reserve Defender', number: 17, position: 'DF', gridX: 0, gridY: 0 },
+        { id: 'sub-h-3', name: 'Impact Midfielder', number: 19, position: 'MF', gridX: 0, gridY: 0 },
+        { id: 'sub-h-4', name: 'Speed Forward', number: 21, position: 'FW', gridX: 0, gridY: 0 },
+      ],
+    },
+    away: {
+      formation: '4-3-3',
+      confirmed: isConfirmed,
+      coach: 'Pep Guardiola',
+      startingXI: generatePitchStarters('Away Team', 'a', false),
+      substitutes: [
+        { id: 'sub-a-1', name: 'Away Sub GK', number: 18, position: 'GK', gridX: 0, gridY: 0 },
+        { id: 'sub-a-2', name: 'Away Defender', number: 20, position: 'DF', gridX: 0, gridY: 0 },
+        { id: 'sub-a-3', name: 'Away Playmaker', number: 23, position: 'MF', gridX: 0, gridY: 0 },
+        { id: 'sub-a-4', name: 'Away Striker', number: 27, position: 'FW', gridX: 0, gridY: 0 },
+      ],
+    },
+  };
+}
+
+export function getSeedStats(match: Match): MatchStatsResponse {
+  if (match.status === 'upcoming') {
+    // Tab 2 for Upcoming games: Recent 5 games form and statistics
+    const makeFormGames = (opponents: string[], wins: boolean[]) => 
+      opponents.map((opp, idx) => ({
+        opponent: opp,
+        score: wins[idx] ? '2 - 0' : (idx === 2 ? '1 - 1' : '1 - 2'),
+        result: wins[idx] ? ('W' as const) : (idx === 2 ? ('D' as const) : ('L' as const)),
+        date: `2026-11-0${idx + 1}`,
+        competition: match.competition.name,
+      }));
+
+    return {
+      type: 'upcoming',
+      matchId: match.id,
+      home: {
+        teamId: match.homeTeam.id,
+        teamName: match.homeTeam.name,
+        form: ['W', 'W', 'D', 'W', 'W'],
+        past5Games: makeFormGames(['Sevilla', 'Valencia', 'Girona', 'Betis', 'Villarreal'], [true, true, false, true, true]),
+        goalsScored: 14,
+        goalsConceded: 3,
+        expectedGoals: 2.38,
+        possession: 61.5,
+        bigChancesCreated: 19,
+        cleanSheets: 3,
+      },
+      away: {
+        teamId: match.awayTeam.id,
+        teamName: match.awayTeam.name,
+        form: ['W', 'D', 'W', 'L', 'W'],
+        past5Games: makeFormGames(['Fulham', 'Brighton', 'Everton', 'Wolves', 'Brentford'], [true, false, true, false, true]),
+        goalsScored: 11,
+        goalsConceded: 6,
+        expectedGoals: 1.84,
+        possession: 55.2,
+        bigChancesCreated: 14,
+        cleanSheets: 2,
+      },
+    };
+  }
+
+  // Tab 2 for Live or Past games: In-Game Statistics
+  return {
+    type: match.status === 'live' ? 'live' : 'finished',
+    matchId: match.id,
+    possession: { home: 54, away: 46 },
+    bigChances: { home: 4, away: 3 },
+    totalShots: { home: 16, away: 12 },
+    shotsOnTarget: { home: 7, away: 5 },
+    goalkeeperSaves: { home: 3, away: 5 },
+    cornerKicks: { home: 8, away: 4 },
+    fouls: { home: 11, away: 14 },
+    passes: { home: 532, away: 461 },
+    tackles: { home: 19, away: 17 },
+    freeKicks: { home: 14, away: 11 },
+    yellowCards: { home: 2, away: 3 },
+    redCards: {
+      home: match.redCards.filter(r => r.teamId === match.homeTeam.id).length,
+      away: match.redCards.filter(r => r.teamId === match.awayTeam.id).length,
+    },
+  };
+}
