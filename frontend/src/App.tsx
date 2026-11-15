@@ -4,6 +4,7 @@ import { Layout } from './components/Layout.js';
 import { HomePage } from './pages/HomePage.js';
 import { MatchDetailPage } from './pages/MatchDetailPage.js';
 import { LiveTvPage } from './pages/LiveTvPage.js';
+import { LiveTvChannelPage } from './pages/LiveTvChannelPage.js';
 
 export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -33,6 +34,10 @@ export default function App() {
                 onResetSearch={() => setSearchQuery('')}
               />
             }
+          />
+          <Route
+            path="/live-tv/:channelId"
+            element={<LiveTvChannelPage />}
           />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
