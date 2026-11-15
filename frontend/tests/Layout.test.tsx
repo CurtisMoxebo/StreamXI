@@ -36,7 +36,6 @@ describe('Frontend Step 2: Global Layout & Navigation Tests', () => {
     // Verify both options exist inside drawer
     expect(screen.getByText('Football')).toBeInTheDocument();
     expect(screen.getByText('Live TV')).toBeInTheDocument();
-    expect(screen.getByText('Soon')).toBeInTheDocument();
 
     // Close drawer
     const closeBtn = screen.getByLabelText('Close Menu Drawer');

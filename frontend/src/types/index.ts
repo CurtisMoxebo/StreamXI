@@ -166,3 +166,45 @@ export interface MatchStreamInfo {
   channels: StreamChannel[];
   activeChannelId?: string;
 }
+
+export interface LiveTvCategory {
+  id: string;
+  name: string;
+}
+
+export interface LiveTvChannel {
+  id: string;
+  name: string;
+  num?: number;
+  streamIcon?: string;
+  categoryId: string;
+  categoryName: string;
+  streamUrl: string;
+}
+
+export interface LiveTvCategoryGroup {
+  category: LiveTvCategory;
+  totalChannels: number;
+  channels: LiveTvChannel[];
+}
+
+export interface EpgProgram {
+  id: string;
+  title: string;
+  description?: string;
+  start: string;
+  end: string;
+  startTimestamp: number;
+  stopTimestamp: number;
+  isNowPlaying?: boolean;
+}
+
+export interface ChannelDetail {
+  id: string;
+  name: string;
+  categoryId: string;
+  categoryName: string;
+  streamIcon?: string;
+  streamUrl: string;
+  epg: EpgProgram[];
+}

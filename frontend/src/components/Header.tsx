@@ -17,7 +17,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenDrawer, searchQuery, onSea
   let isStreamPage = false;
   try {
     const location = useLocation();
-    isStreamPage = location.pathname.startsWith('/match/');
+    isStreamPage = location.pathname.startsWith('/match/') || (location.pathname.startsWith('/live-tv/') && location.pathname !== '/live-tv');
   } catch {
     isStreamPage = false;
   }

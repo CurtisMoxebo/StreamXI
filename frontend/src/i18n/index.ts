@@ -26,7 +26,7 @@ export const resources = {
   en: {
     translation: {
       tagline: 'Football Schedules & Live Streams',
-      searchPlaceholder: 'Search teams, leagues (e.g. Real Madrid, Arsenal, Champions League)...',
+      searchPlaceholder: 'Search teams, leagues, channels (e.g. Real Madrid, Canal+, Sky Sports)...',
       menuTitle: 'Menu Navigation',
       navFootball: 'Football',
       navLiveTv: 'Live TV',
@@ -89,6 +89,21 @@ export const resources = {
       highRiskPredictions: 'High-Risk Predictions',
       aiTacticalSummary: 'AI Tactical Analysis',
       confidence: 'Confidence',
+
+      // Live TV Section
+      liveTvTitle: 'Live TV Channels',
+      liveTvSubtitle: 'Browse TV channels grouped by category and search by channel or category name.',
+      allCategories: 'All Categories',
+      channelsCount: '{{count}} channels',
+      noChannelsFound: 'No TV channels found',
+      noChannelsDesc: 'Try searching with a different channel name or category.',
+      backToLiveTv: 'Back to Live TV',
+      nowPlaying: 'Now Playing',
+      upcomingSchedule: 'Electronic Program Guide (EPG)',
+      noEpgAvailable: 'No detailed schedule available for this channel.',
+      liveNowBadge: 'LIVE NOW',
+      upcomingBadge: 'UPCOMING',
+      channelCategory: 'Category',
       
       // Footer
       copyright: '© 2026 StreamXI. All rights reserved.',
@@ -97,7 +112,7 @@ export const resources = {
   fr: {
     translation: {
       tagline: 'Calendriers et diffusions de football en direct',
-      searchPlaceholder: 'Rechercher équipes, ligues (ex. Real Madrid, Arsenal, Ligue des Champions)...',
+      searchPlaceholder: 'Rechercher équipes, ligues, chaînes (ex. Real Madrid, Canal+, Sky Sports)...',
       menuTitle: 'Navigation',
       navFootball: 'Football',
       navLiveTv: 'Télé en direct',
@@ -156,6 +171,21 @@ export const resources = {
       highRiskPredictions: 'Prédictions à haut risque',
       aiTacticalSummary: 'Analyse tactique IA',
       confidence: 'Confiance',
+
+      // Live TV Section
+      liveTvTitle: 'Chaînes télé en direct',
+      liveTvSubtitle: 'Parcourez les chaînes télé groupées par catégories et recherchez par chaîne ou catégorie.',
+      allCategories: 'Toutes les catégories',
+      channelsCount: '{{count}} chaînes',
+      noChannelsFound: 'Aucune chaîne trouvée',
+      noChannelsDesc: 'Essayez de rechercher avec un nom de chaîne ou une catégorie différente.',
+      backToLiveTv: 'Retour aux chaînes',
+      nowPlaying: 'En ce moment',
+      upcomingSchedule: 'Guide des programmes (EPG)',
+      noEpgAvailable: 'Aucun programme détaillé disponible pour cette chaîne.',
+      liveNowBadge: 'EN COURS',
+      upcomingBadge: 'À SUIVRE',
+      channelCategory: 'Catégorie',
       
       copyright: '© 2026 StreamXI. Tous droits réservés.',
     },
@@ -163,7 +193,7 @@ export const resources = {
   es: {
     translation: {
       tagline: 'Horarios y retransmisiones de fútbol en vivo',
-      searchPlaceholder: 'Buscar equipos, ligas (ej. Real Madrid, Arsenal, Champions League)...',
+      searchPlaceholder: 'Buscar equipos, ligas, canales (ej. Real Madrid, Movistar, Canal+)...',
       menuTitle: 'Navegación',
       navFootball: 'Fútbol',
       navLiveTv: 'TV en vivo',
@@ -222,6 +252,21 @@ export const resources = {
       highRiskPredictions: 'Apuestas de alto riesgo',
       aiTacticalSummary: 'Análisis táctico IA',
       confidence: 'Confianza',
+
+      // Live TV Section
+      liveTvTitle: 'Canales de TV en vivo',
+      liveTvSubtitle: 'Explora canales agrupados por categoría y busca por canal o categoría.',
+      allCategories: 'Todas las categorías',
+      channelsCount: '{{count}} canales',
+      noChannelsFound: 'No se encontraron canales',
+      noChannelsDesc: 'Intenta buscar con un nombre de canal o categoría diferente.',
+      backToLiveTv: 'Volver a canales',
+      nowPlaying: 'En emisión',
+      upcomingSchedule: 'Guía electrónica de programación (EPG)',
+      noEpgAvailable: 'No hay guía detallada disponible para este canal.',
+      liveNowBadge: 'EN VIVO',
+      upcomingBadge: 'A CONTINUACIÓN',
+      channelCategory: 'Categoría',
       
       copyright: '© 2026 StreamXI. Todos los derechos reservados.',
     },
@@ -240,7 +285,6 @@ i18n
     },
     detection: {
       order: ['localStorage', 'navigator'],
-      caches: ['localStorage'],
     },
   });
 

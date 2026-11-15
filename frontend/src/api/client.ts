@@ -1,5 +1,15 @@
 import axios from 'axios';
-import { Match, MatchLineups, MatchStatsResponse, AIPrediction, MatchStreamInfo } from '../types/index.js';
+import {
+  Match,
+  MatchLineups,
+  MatchStatsResponse,
+  AIPrediction,
+  MatchStreamInfo,
+  LiveTvCategory,
+  LiveTvCategoryGroup,
+  ChannelDetail,
+  EpgProgram,
+} from '../types/index.js';
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
@@ -38,6 +48,26 @@ export const api = {
 
   getMatchStreamInfo: async (id: string): Promise<MatchStreamInfo> => {
     const res = await apiClient.get(`/matches/${id}/stream-info`);
+    return res.data;
+  },
+
+  getLiveTvCategories: async (): Promise<LiveTvCategory[]> => {
+    const res = await apiClient.get('/livetv/categories');
+    return res.data;
+  },
+
+  getLiveTvChannels: async (params?: { search?: string; categoryId?: string; limit?: number }): Promise<{ totalGroups: number; groups: LiveTvCategoryGroup[] }> => {
+    const res = await apiClient.get('/livetv/channels', { params });
+    return res.data;
+  },
+
+  getLiveTvChannelDetail: async (channelId: string): Promise<ChannelDetail> => {
+    const res = await apiClient.get(`/livetv/channels/${channelId}`);
+    return res.data;
+  },
+
+  getLiveTvChannelEpg: async (channelId: string): Promise<EpgProgram[]> => {
+    const res = await apiClient.get(`/livetv/channels/${channelId}/epg`);
     return res.data;
   },
 };
