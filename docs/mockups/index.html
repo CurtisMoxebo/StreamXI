@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StreamXI - Football Schedules & Live Streams</title>
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="apple-touch-icon" href="./streamxi-logo.jpg">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['"Outfit"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              400: '#34d399',
+              500: '#10b981',
+              600: '#059669',
+            },
+            accent: {
+              cyan: '#06b6d4',
+              red: '#ef4444',
+              amber: '#f59e0b',
+            },
+            surface: {
+              900: '#0b0f19',
+              850: '#0f172a',
+              800: '#131e36',
+              750: '#182544',
+              700: '#1e293b',
+              600: '#334155',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0b0f19;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+    .match-card {
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .match-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px -6px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(16, 185, 129, 0.25);
+    }
+    .red-card-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 10px;
+      height: 14px;
+      background: linear-gradient(135deg, #ef4444, #b91c1c);
+      border-radius: 2px;
+      box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+  </style>
+</head>
+<body class="bg-surface-900 text-slate-100 min-h-screen font-sans selection:bg-brand-500 selection:text-white flex flex-col antialiased">
+
+  <!-- TOP NAVIGATION HEADER -->
+  <header class="sticky top-0 z-40 bg-surface-900/95 backdrop-blur-md border-b border-surface-750/70">
+    <div class="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 h-18 py-3.5 flex items-center justify-between gap-4">
+      
+      <!-- Hamburger Toggle & Brand Logo -->
+      <div class="flex items-center gap-3">
+        <!-- Hamburger Menu Button: Opens Left Side Navigation Drawer -->
+        <button id="openDrawerBtn" aria-label="Open Navigation Drawer" class="p-2 text-slate-300 hover:text-white hover:bg-surface-800 rounded-xl border border-surface-700/80 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500/30">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+
+        <a href="#" class="flex items-center gap-2.5 group">
+          <div class="w-10 h-10 rounded-xl overflow-hidden p-0.5 bg-gradient-to-tr from-brand-600 via-brand-500 to-accent-cyan shadow-lg shadow-brand-500/25 group-hover:shadow-brand-500/45 transition-all">
+            <img src="./streamxi-logo.jpg" alt="StreamXI Logo" class="w-full h-full object-cover rounded-[10px]" onerror="this.onerror=null; this.src='./favicon.svg';">
+          </div>
+          <div>
+            <span class="font-display font-extrabold text-2xl tracking-tight text-white">Stream<span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-accent-cyan">XI</span></span>
+            <p class="text-[11px] text-slate-400 -mt-1 hidden sm:block" data-i18n="tagline">Football Schedules & Live Streams</p>
+          </div>
+        </a>
+      </div>
+
+      <!-- Center Search Bar with Filter Animation Effect -->
+      <div class="flex-1 max-w-xl mx-2 sm:mx-6">
+        <div class="relative group">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-brand-400 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </div>
+          <input 
+            type="text" 
+            id="searchInput"
+            placeholder="Search teams, leagues (e.g. Real Madrid, Arsenal, Champions League)..." 
+            data-i18n-placeholder="searchPlaceholder"
+            class="w-full pl-10 pr-10 py-2.5 bg-surface-850/80 border border-surface-700/80 rounded-xl text-sm placeholder-slate-400 text-slate-100 focus:outline-none focus:border-brand-500/80 focus:ring-2 focus:ring-brand-500/20 transition-all shadow-inner"
+          />
+          <button id="clearSearchBtn" class="hidden absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-white">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Right Header Controls: Multilingual Selector with Flags -->
+      <div class="flex items-center gap-3">
+        <div class="relative" id="langDropdownContainer">
+          <button id="langButton" class="flex items-center gap-2 px-3 py-2 bg-surface-850 border border-surface-700 hover:border-surface-600 rounded-xl text-xs font-semibold text-slate-200 hover:text-white transition-all shadow-sm">
+            <span id="currentLangFlag" class="text-base leading-none">🇬🇧</span>
+            <span id="currentLangText">EN</span>
+            <svg class="w-3.5 h-3.5 text-slate-400 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+          
+          <div id="langMenu" class="hidden absolute right-0 mt-2 w-44 bg-surface-850 border border-surface-700/90 rounded-xl shadow-2xl py-1 z-50 backdrop-blur-md">
+            <button onclick="changeLanguage('en')" class="w-full flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium text-slate-300 hover:text-white hover:bg-surface-750 text-left transition-colors">
+              <span class="text-lg leading-none">🇬🇧</span>
+              <span>English (EN)</span>
+            </button>
+            <button onclick="changeLanguage('fr')" class="w-full flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium text-slate-300 hover:text-white hover:bg-surface-750 text-left transition-colors">
+              <span class="text-lg leading-none">🇫🇷</span>
+              <span>Français (FR)</span>
+            </button>
+            <button onclick="changeLanguage('es')" class="w-full flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium text-slate-300 hover:text-white hover:bg-surface-750 text-left transition-colors">
+              <span class="text-lg leading-none">🇪🇸</span>
+              <span>Español (ES)</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ======================================================== -->
+  <!-- LEFT SIDE DRAWER (Opened via Hamburger Icon with 2 Options) -->
+  <!-- ======================================================== -->
+  <div id="drawerOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 opacity-0 pointer-events-none transition-opacity duration-300"></div>
+
+  <aside id="sideDrawer" class="fixed top-0 bottom-0 left-0 w-72 bg-surface-850 border-r border-surface-750 z-50 shadow-2xl transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
+    <!-- Drawer Header -->
+    <div class="p-4 border-b border-surface-750/80 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl overflow-hidden p-0.5 bg-gradient-to-tr from-brand-600 to-brand-400 shadow-md">
+          <img src="./streamxi-logo.jpg" alt="StreamXI" class="w-full h-full object-cover rounded-[8px]" onerror="this.onerror=null; this.src='./favicon.svg';">
+        </div>
+        <span class="font-display font-bold text-lg text-white tracking-wide">Stream<span class="text-brand-400">XI</span></span>
+      </div>
+
+      <!-- Close Drawer Button -->
+      <button id="closeDrawerBtn" aria-label="Close Menu Drawer" class="p-1.5 text-slate-400 hover:text-white hover:bg-surface-750 rounded-lg transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Drawer Navigation (Contains ONLY the 2 Options: Football & Live TV) -->
+    <div class="p-4 flex-1 overflow-y-auto space-y-6">
+      <div>
+        <div class="px-2 py-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400" data-i18n="menuTitle">
+          Menu Navigation
+        </div>
+        <nav class="mt-2 space-y-2">
+          
+          <!-- Option 1: Football (Active) -->
+          <a href="#" class="flex items-center justify-between px-3.5 py-3 rounded-xl bg-gradient-to-r from-brand-500/15 to-transparent text-brand-400 border border-brand-500/30 font-semibold text-sm group transition-all">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-brand-500/20 text-brand-400 flex items-center justify-center">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                  <path d="M12 2a14.5 14.5 0 0 0 0 20M2 12h20" stroke-width="1.8"/>
+                </svg>
+              </div>
+              <span data-i18n="navFootball">Football</span>
+            </div>
+            <span class="flex h-2 w-2 relative">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span>
+            </span>
+          </a>
+
+          <!-- Option 2: Live TV (Inactive / Coming Soon) -->
+          <a href="#" class="flex items-center justify-between px-3.5 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-surface-800 font-medium text-sm transition-all group">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-surface-750 text-slate-400 group-hover:text-slate-200 flex items-center justify-center transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <rect x="2" y="7" width="20" height="15" rx="2" ry="2" stroke-width="2"/>
+                  <polyline points="17 2 12 7 7 2" stroke-width="2"/>
+                </svg>
+              </div>
+              <span data-i18n="navLiveTv">Live TV</span>
+            </div>
+            <span class="text-[10px] font-semibold tracking-wide uppercase px-2 py-0.5 rounded-full bg-surface-750 text-slate-400 border border-surface-700" data-i18n="badgeSoon">
+              Soon
+            </span>
+          </a>
+
+        </nav>
+      </div>
+    </div>
+  </aside>
+
+  <!-- BODY CONTAINER WITH TOP COMPETITIONS SIDEBAR + MAIN CONTENT -->
+  <div class="flex-1 max-w-[1720px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex gap-6">
+
+    <!-- LEFT SIDE OF PAGE: TOP COMPETITIONS SECTION -->
+    <aside class="w-64 flex-shrink-0 hidden lg:block">
+      <div class="sticky top-24 space-y-4">
+        
+        <!-- Top Competitions Section -->
+        <div class="bg-surface-850/85 rounded-2xl border border-surface-750/70 p-4 shadow-lg backdrop-blur-sm">
+          <div class="flex items-center justify-between mb-3 px-1">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400" data-i18n="topLeagues">Top Competitions</span>
+            <span class="text-[10px] font-semibold text-brand-400 bg-brand-500/10 px-2 py-0.5 rounded-md border border-brand-500/20">Active</span>
+          </div>
+          
+          <ul class="space-y-1 text-xs text-slate-300">
+            <li class="flex items-center justify-between p-2.5 rounded-xl hover:bg-surface-800 cursor-pointer transition-colors group" onclick="filterByLeague('Champions League')">
+              <div class="flex items-center gap-2.5">
+                <span class="text-sm">⭐</span>
+                <span class="font-medium text-slate-200 group-hover:text-white transition-colors">UEFA Champions League</span>
+              </div>
+              <span class="text-[10px] font-bold text-brand-400 bg-brand-500/15 px-1.5 py-0.5 rounded">2 Live</span>
+            </li>
+            
+            <li class="flex items-center justify-between p-2.5 rounded-xl hover:bg-surface-800 cursor-pointer transition-colors group" onclick="filterByLeague('Premier League')">
+              <div class="flex items-center gap-2.5">
+                <span class="text-sm">🏴󠁧󠁢󠁥󠁮󠁧󠁿</span>
+                <span class="font-medium text-slate-200 group-hover:text-white transition-colors">Premier League</span>
+              </div>
+              <span class="text-[10px] text-slate-400 bg-surface-800 px-1.5 py-0.5 rounded">3</span>
+            </li>
+            
+            <li class="flex items-center justify-between p-2.5 rounded-xl hover:bg-surface-800 cursor-pointer transition-colors group" onclick="filterByLeague('La Liga')">
+              <div class="flex items-center gap-2.5">
+                <span class="text-sm">🇪🇸</span>
+                <span class="font-medium text-slate-200 group-hover:text-white transition-colors">La Liga EA Sports</span>
+              </div>
+              <span class="text-[10px] text-slate-400 bg-surface-800 px-1.5 py-0.5 rounded">2</span>
+            </li>
+            
+            <li class="flex items-center justify-between p-2.5 rounded-xl hover:bg-surface-800 cursor-pointer transition-colors group" onclick="filterByLeague('Serie A')">
+              <div class="flex items-center gap-2.5">
+                <span class="text-sm">🇮🇹</span>
+                <span class="font-medium text-slate-200 group-hover:text-white transition-colors">Serie A</span>
+              </div>
+              <span class="text-[10px] text-slate-400 bg-surface-800 px-1.5 py-0.5 rounded">1</span>
+            </li>
+            
+            <li class="flex items-center justify-between p-2.5 rounded-xl hover:bg-surface-800 cursor-pointer transition-colors group" onclick="filterByLeague('Bundesliga')">
+              <div class="flex items-center gap-2.5">
+                <span class="text-sm">🇩🇪</span>
+                <span class="font-medium text-slate-200 group-hover:text-white transition-colors">Bundesliga</span>
+              </div>
+              <span class="text-[10px] text-slate-400 bg-surface-800 px-1.5 py-0.5 rounded">1</span>
+            </li>
+            
+            <li class="flex items-center justify-between p-2.5 rounded-xl hover:bg-surface-800 cursor-pointer transition-colors group" onclick="filterByLeague('Ligue 1')">
+              <div class="flex items-center gap-2.5">
+                <span class="text-sm">🇫🇷</span>
+                <span class="font-medium text-slate-200 group-hover:text-white transition-colors">Ligue 1</span>
+              </div>
+              <span class="text-[10px] text-slate-400 bg-surface-800 px-1.5 py-0.5 rounded">1</span>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-1 min-w-0 space-y-6">
+
+      <!-- TOP BAR: DATE NAVIGATION & QUICK STATUS PILLS -->
+      <div class="bg-surface-850/90 rounded-2xl border border-surface-750/80 p-4 sm:p-5 shadow-xl backdrop-blur-sm">
+        
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+          
+          <!-- Date Navigator Controls -->
+          <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
+            
+            <!-- Previous Date Button -->
+            <button id="prevDateBtn" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-surface-800 hover:bg-surface-750 border border-surface-700 text-xs font-semibold text-slate-300 hover:text-white transition-all shadow-sm active:scale-95">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+              </svg>
+              <span class="hidden md:inline" data-i18n="prevDay">Previous</span>
+            </button>
+
+            <!-- Current Date Display with Badge -->
+            <div class="flex items-center gap-2.5 px-4 py-2 rounded-xl bg-surface-900/90 border border-surface-700/90 shadow-inner">
+              <svg class="w-4 h-4 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke-width="2"/>
+                <line x1="16" y1="2" x2="16" y2="6" stroke-width="2"/>
+                <line x1="8" y1="2" x2="8" y2="6" stroke-width="2"/>
+                <line x1="3" y1="10" x2="21" y2="10" stroke-width="2"/>
+              </svg>
+              <span id="currentDateLabel" class="font-display font-bold text-sm sm:text-base text-white tracking-wide">
+                Saturday, Nov 14, 2026
+              </span>
+              <span id="todayBadge" class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-brand-500/20 text-brand-400 border border-brand-500/30" data-i18n="badgeToday">
+                Today
+              </span>
+            </div>
+
+            <!-- Next Date Button -->
+            <button id="nextDateBtn" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-surface-800 hover:bg-surface-750 border border-surface-700 text-xs font-semibold text-slate-300 hover:text-white transition-all shadow-sm active:scale-95">
+              <span class="hidden md:inline" data-i18n="nextDay">Next</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </button>
+
+          </div>
+
+          <!-- Quick Status Tabs (All, Live, Upcoming, Finished) -->
+          <div class="flex items-center p-1 bg-surface-800/80 rounded-xl border border-surface-700 w-full sm:w-auto overflow-x-auto">
+            <button onclick="setStatusFilter('all')" id="filter-all" class="flex-1 sm:flex-initial px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-brand-500 text-white shadow-sm transition-all" data-i18n="filterAll">
+              All Matches (8)
+            </button>
+            <button onclick="setStatusFilter('live')" id="filter-live" class="flex-1 sm:flex-initial px-3.5 py-1.5 text-xs font-medium text-slate-400 hover:text-slate-200 rounded-lg transition-all flex items-center justify-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-accent-red animate-pulse"></span>
+              <span data-i18n="filterLive">Live</span> (2)
+            </button>
+            <button onclick="setStatusFilter('upcoming')" id="filter-upcoming" class="flex-1 sm:flex-initial px-3.5 py-1.5 text-xs font-medium text-slate-400 hover:text-slate-200 rounded-lg transition-all" data-i18n="filterUpcoming">
+              Upcoming (3)
+            </button>
+            <button onclick="setStatusFilter('finished')" id="filter-finished" class="flex-1 sm:flex-initial px-3.5 py-1.5 text-xs font-medium text-slate-400 hover:text-slate-200 rounded-lg transition-all" data-i18n="filterFinished">
+              Finished (3)
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Status Legend & Match Day Range -->
+        <div class="mt-4 pt-3 border-t border-surface-750/70 flex flex-wrap items-center justify-between text-xs text-slate-400 gap-2">
+          <div class="flex items-center gap-3">
+            <span class="flex items-center gap-1.5">
+              <span class="inline-block w-2.5 h-2.5 rounded-full bg-brand-400"></span>
+              <span data-i18n="legendLive">Green Score: Live Game</span>
+            </span>
+            <span class="flex items-center gap-1.5">
+              <span class="inline-block w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+              <span data-i18n="legendPast">White Score: Finished Game</span>
+            </span>
+            <span class="flex items-center gap-1.5">
+              <span class="red-card-badge"></span>
+              <span data-i18n="legendRedCard">Red Card</span>
+            </span>
+          </div>
+          <div class="text-slate-400 font-mono text-[11px]">
+            Schedule: <span class="text-slate-200 font-semibold">00:00 - 23:59</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- MATCHES CONTAINER GROUPED BY COMPETITIONS -->
+      <div id="matchesContainer" class="space-y-6">
+
+        <!-- ========================================== -->
+        <!-- COMPETITION 1: UEFA CHAMPIONS LEAGUE -->
+        <!-- ========================================== -->
+        <section class="competition-group bg-surface-850/70 rounded-2xl border border-surface-750/70 overflow-hidden shadow-lg transition-all" data-competition="UEFA Champions League">
+          
+          <div class="px-5 py-3.5 bg-gradient-to-r from-surface-800 via-surface-800/80 to-surface-850 border-b border-surface-750/80 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-blue-950/80 border border-blue-500/30 flex items-center justify-center text-blue-400 font-bold text-sm shadow-sm">
+                ⭐
+              </div>
+              <div>
+                <h2 class="font-display font-bold text-base text-white tracking-wide">UEFA Champions League</h2>
+                <p class="text-[11px] text-slate-400">Quarter Finals · Europe</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs px-2.5 py-1 rounded-full bg-brand-500/10 text-brand-400 font-semibold border border-brand-500/20">
+                2 Matches
+              </span>
+            </div>
+          </div>
+
+          <div class="p-3 sm:p-4 space-y-3">
+            
+            <!-- Match 1: LIVE (Real Madrid vs Manchester City) -->
+            <div class="match-card bg-surface-800/90 rounded-xl border border-surface-700/80 p-4 relative overflow-hidden" 
+                 data-match-id="ucl-rm-mci"
+                 data-status="live"
+                 data-home="Real Madrid"
+                 data-away="Manchester City"
+                 data-competition="UEFA Champions League">
+              
+              <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-brand-400"></div>
+
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pl-1">
+                <div class="flex items-center sm:w-44 flex-shrink-0 gap-3 border-b sm:border-b-0 sm:border-r border-surface-700/60 pb-2 sm:pb-0 sm:pr-4">
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="relative flex h-2.5 w-2.5">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-red opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent-red"></span>
+                      </span>
+                      <span class="font-mono font-bold text-accent-red text-xs uppercase tracking-wider">LIVE 68'</span>
+                    </div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">20:00 CET</div>
+                  </div>
+                </div>
+
+                <div class="flex-1 space-y-2.5">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-7 h-7 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-xs font-bold text-white shadow-sm overflow-hidden">
+                        <span>👑</span>
+                      </div>
+                      <span class="font-semibold text-sm sm:text-base text-slate-100 team-name">Real Madrid</span>
+                    </div>
+                    <span class="font-mono font-extrabold text-xl sm:text-2xl text-brand-400 drop-shadow-[0_0_12px_rgba(52,211,153,0.4)]">
+                      2
+                    </span>
+                  </div>
+
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-7 h-7 rounded-full bg-sky-500/20 border border-sky-400/30 flex items-center justify-center text-xs font-bold text-sky-300 shadow-sm">
+                        <span>⚡</span>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <span class="font-semibold text-sm sm:text-base text-slate-100 team-name">Manchester City</span>
+                        <span class="red-card-badge" title="Red Card"></span>
+                      </div>
+                    </div>
+                    <span class="font-mono font-extrabold text-xl sm:text-2xl text-brand-400 drop-shadow-[0_0_12px_rgba(52,211,153,0.4)]">
+                      2
+                    </span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Match 2: LIVE (Arsenal vs Bayern Munich) -->
+            <div class="match-card bg-surface-800/90 rounded-xl border border-surface-700/80 p-4 relative overflow-hidden" 
+                 data-match-id="ucl-ars-bay"
+                 data-status="live"
+                 data-home="Arsenal"
+                 data-away="Bayern Munich"
+                 data-competition="UEFA Champions League">
+              
+              <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-brand-400"></div>
+
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pl-1">
+                <div class="flex items-center sm:w-44 flex-shrink-0 gap-3 border-b sm:border-b-0 sm:border-r border-surface-700/60 pb-2 sm:pb-0 sm:pr-4">
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="relative flex h-2.5 w-2.5">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-red opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent-red"></span>
+                      </span>
+                      <span class="font-mono font-bold text-accent-red text-xs uppercase tracking-wider">LIVE 42'</span>
+                    </div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">20:00 CET</div>
+                  </div>
+                </div>
+
+                <div class="flex-1 space-y-2.5">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-7 h-7 rounded-full bg-red-600/20 border border-red-500/30 flex items-center justify-center text-xs font-bold text-red-300">
+                        🔴
+                      </div>
+                      <span class="font-semibold text-sm sm:text-base text-slate-100 team-name">Arsenal</span>
+                    </div>
+                    <span class="font-mono font-extrabold text-xl sm:text-2xl text-brand-400 drop-shadow-[0_0_12px_rgba(52,211,153,0.4)]">
+                      1
+                    </span>
+                  </div>
+
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-7 h-7 rounded-full bg-red-800/20 border border-red-700/30 flex items-center justify-center text-xs font-bold text-red-200">
+                        ⚪
+                      </div>
+                      <span class="font-semibold text-sm sm:text-base text-slate-100 team-name">Bayern Munich</span>
+                    </div>
+                    <span class="font-mono font-extrabold text-xl sm:text-2xl text-brand-400 drop-shadow-[0_0_12px_rgba(52,211,153,0.4)]">
+                      0
+                    </span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- COMPETITION 2: PREMIER LEAGUE -->
+        <!-- ========================================== -->
+        <section class="competition-group bg-surface-850/70 rounded-2xl border border-surface-750/70 overflow-hidden shadow-lg transition-all" data-competition="Premier League">
+          
+          <div class="px-5 py-3.5 bg-gradient-to-r from-surface-800 via-surface-800/80 to-surface-850 border-b border-surface-750/80 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-purple-950/80 border border-purple-500/30 flex items-center justify-center text-purple-300 font-bold text-sm shadow-sm">
+                🦁
+              </div>
+              <div>
+                <h2 class="font-display font-bold text-base text-white tracking-wide">Premier League</h2>
+                <p class="text-[11px] text-slate-400">Matchday 12 · England</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs px-2.5 py-1 rounded-full bg-surface-750 text-slate-300 font-semibold border border-surface-700">
+                3 Matches
+              </span>
+            </div>
+          </div>
+
+          <div class="p-3 sm:p-4 space-y-3">
+            
+            <!-- Match 3: UPCOMING Liverpool vs Chelsea -->
+            <div class="match-card bg-surface-800/90 rounded-xl border border-surface-700/80 p-4 relative overflow-hidden" 
+                 data-match-id="epl-liv-che"
+                 data-status="upcoming"
+                 data-home="Liverpool"
+                 data-away="Chelsea"
+                 data-competition="Premier League">
+              
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-center sm:w-44 flex-shrink-0 gap-3 border-b sm:border-b-0 sm:border-r border-surface-700/60 pb-2 sm:pb-0 sm:pr-4">
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="w-2 h-2 rounded-full bg-accent-amber animate-ping"></span>
+                      <span class="font-mono font-bold text-accent-amber text-xs uppercase tracking-wider" data-i18n="startsSoon">Starts in 25 min</span>
+                    </div>
+                    <div class="text-[11px] text-slate-300 font-medium mt-0.5">20:30 CET</div>
+                  </div>
+                </div>
+
+                <div class="flex-1 space-y-2.5">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-7 h-7 rounded-full bg-red-700/20 border border-red-500/30 flex items-center justify-center text-xs font-bold text-red-300">
+                        🔴
+                      </div>
+                      <span class="font-semibold text-sm sm:text-base text-slate-100 team-name">Liverpool</span>
+                    </div>
+                    <span class="font-mono text-sm text-slate-500 font-medium">-</span>
+                  </div>
+
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-7 h-7 rounded-full bg-blue-600/20 border border-blue-400/30 flex items-center justify-center text-xs font-bold text-blue-300">
+                        🔵
+                      </div>
+                      <span class="font-semibold text-sm sm:text-base text-slate-100 team-name">Chelsea</span>
+                    </div>
+                    <span class="font-mono text-sm text-slate-500 font-medium">-</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Match 4: PAST Tottenham vs Manchester United -->
+            <div class="match-card bg-surface-800/90 rounded-xl border border-surface-700/80 p-4 relative overflow-hidden" 
+                 data-match-id="epl-tot-mun"
+                 data-status="finished"
+                 data-home="Tottenham Hotspur"
+                 data-away="Manchester United"
+                 data-competition="Premier League">
+              
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-center sm:w-44 flex-shrink-0 gap-3 border-b sm:border-b-0 sm:border-r border-surface-700/60 pb-2 sm:pb-0 sm:pr-4">
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+                      <span class="font-mono font-bold text-slate-300 text-xs uppercase tracking-wider" data-i18n="statusFinished">FT (Full Time)</span>
+                    </div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">16:30 CET</div>
+                  </div>
+                </div>
+
+                <div class="flex-1 space-y-2.5">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-7 h-7 rounded-full bg-slate-700/40 border border-slate-600/40 flex items-center justify-center text-xs font-bold text-slate-200">
+                        ⚪
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <span class="font-semibold text-sm sm:text-base text-slate-300 team-name">Tottenham Hotspur</span>
+                        <span class="red-card-badge" title="Red Card"></span>
+                      </div>
+                    </div>
+                    <span class="font-mono font-bold text-xl sm:text-2xl text-slate-300">
+                      1
+                    </span>
+                  </div>
+
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-7 h-7 rounded-full bg-red-800/30 border border-red-700/40 flex items-center justify-center text-xs font-bold text-red-300">
+                        👹
+                      </div>
+                      <span class="font-semibold text-sm sm:text-base text-slate-100 team-name">Manchester United</span>
+                    </div>
+                    <span class="font-mono font-bold text-xl sm:text-2xl text-slate-100">
+                      3
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Match 5: UPCOMING Aston Villa vs Newcastle -->
+            <div class="match-card bg-surface-800/90 rounded-xl border border-surface-700/80 p-4 relative overflow-hidden" 
+                 data-match-id="epl-avl-new"
+                 data-status="upcoming"
+                 data-home="Aston Villa"
+                 data-away="Newcastle United"
+                 data-competition="Premier League">
+              
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-center sm:w-44 flex-shrink-0 gap-3 border-b sm:border-b-0 sm:border-r border-surface-700/60 pb-2 sm:pb-0 sm:pr-4">
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="w-2 h-2 rounded-full bg-slate-500"></span>
+                      <span class="font-mono font-bold text-slate-300 text-xs uppercase tracking-wider" data-i18n="statusUpcoming">Upcoming</span>
+                    </div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">22:00 CET</div>
+                  </div>
+                </div>
+
+                <div class="flex-1 space-y-2.5">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-7 h-7 rounded-full bg-amber-900/30 border border-amber-700/40 flex items-center justify-center text-xs">🦁</div>
+                      <span class="font-semibold text-sm sm:text-base text-slate-100 team-name">Aston Villa</span>
+                    </div>
+                    <span class="font-mono text-sm text-slate-500">-</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-7 h-7 rounded-full bg-slate-700/40 border border-slate-600/40 flex items-center justify-center text-xs">⚫</div>
+                      <span class="font-semibold text-sm sm:text-base text-slate-100 team-name">Newcastle United</span>
+                    </div>
+                    <span class="font-mono text-sm text-slate-500">-</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- COMPETITION 3: LA LIGA EA SPORTS -->
+        <!-- ========================================== -->
+        <section class="competition-group bg-surface-850/70 rounded-2xl border border-surface-750/70 overflow-hidden shadow-lg transition-all" data-competition="La Liga">
+          
+          <div class="px-5 py-3.5 bg-gradient-to-r from-surface-800 via-surface-800/80 to-surface-850 border-b border-surface-750/80 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-amber-950/80 border border-amber-500/30 flex items-center justify-center text-amber-300 font-bold text-sm shadow-sm">
+                🇪🇸
+              </div>
+              <div>
+                <h2 class="font-display font-bold text-base text-white tracking-wide">La Liga EA Sports</h2>
+                <p class="text-[11px] text-slate-400">Jornada 13 · Spain</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs px-2.5 py-1 rounded-full bg-surface-750 text-slate-300 font-semibold border border-surface-700">
+                2 Matches
+              </span>
+            </div>
+          </div>
+
+          <div class="p-3 sm:p-4 space-y-3">
+            
+            <!-- Match 6: UPCOMING Barcelona vs Atletico Madrid -->
+            <div class="match-card bg-surface-800/90 rounded-xl border border-surface-700/80 p-4 relative overflow-hidden" 
+                 data-match-id="laliga-bar-atm"
+                 data-status="upcoming"
+                 data-home="FC Barcelona"
+                 data-away="Atletico Madrid"
+                 data-competition="La Liga">
+              
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-center sm:w-44 flex-shrink-0 gap-3 border-b sm:border-b-0 sm:border-r border-surface-700/60 pb-2 sm:pb-0 sm:pr-4">
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="w-2 h-2 rounded-full bg-slate-500"></span>
+                      <span class="font-mono font-bold text-slate-300 text-xs uppercase tracking-wider" data-i18n="statusUpcoming">Upcoming</span>
+                    </div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">21:00 CET</div>
+                  </div>
+                </div>
+
+                <div class="flex-1 space-y-2.5">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-7 h-7 rounded-full bg-blue-900/30 border border-red-500/40 flex items-center justify-center text-xs">🔵🔴</div>
+                      <span class="font-semibold text-sm sm:text-base text-slate-100 team-name">FC Barcelona</span>
+                    </div>
+                    <span class="font-mono text-sm text-slate-500">-</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-7 h-7 rounded-full bg-red-900/30 border border-white/30 flex items-center justify-center text-xs">🔴⚪</div>
+                      <span class="font-semibold text-sm sm:text-base text-slate-100 team-name">Atletico Madrid</span>
+                    </div>
+                    <span class="font-mono text-sm text-slate-500">-</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Match 7: PAST Real Sociedad vs Athletic Club -->
+            <div class="match-card bg-surface-800/90 rounded-xl border border-surface-700/80 p-4 relative overflow-hidden" 
+                 data-match-id="laliga-rso-ath"
+                 data-status="finished"
+                 data-home="Real Sociedad"
+                 data-away="Athletic Club"
+                 data-competition="La Liga">
+              
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-center sm:w-44 flex-shrink-0 gap-3 border-b sm:border-b-0 sm:border-r border-surface-700/60 pb-2 sm:pb-0 sm:pr-4">
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+                      <span class="font-mono font-bold text-slate-300 text-xs uppercase tracking-wider" data-i18n="statusFinished">FT (Full Time)</span>
+                    </div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">14:00 CET</div>
+                  </div>
+                </div>
+
+                <div class="flex-1 space-y-2.5">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-7 h-7 rounded-full bg-blue-700/30 border border-blue-500/40 flex items-center justify-center text-xs">🔵</div>
+                      <span class="font-semibold text-sm sm:text-base text-slate-300 team-name">Real Sociedad</span>
+                    </div>
+                    <span class="font-mono font-bold text-xl sm:text-2xl text-slate-300">1</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-7 h-7 rounded-full bg-red-700/30 border border-white/40 flex items-center justify-center text-xs">🦁</div>
+                      <span class="font-semibold text-sm sm:text-base text-slate-300 team-name">Athletic Club</span>
+                    </div>
+                    <span class="font-mono font-bold text-xl sm:text-2xl text-slate-300">1</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- COMPETITION 4: LIGUE 1 MCDONALD'S -->
+        <!-- ========================================== -->
+        <section class="competition-group bg-surface-850/70 rounded-2xl border border-surface-750/70 overflow-hidden shadow-lg transition-all" data-competition="Ligue 1">
+          
+          <div class="px-5 py-3.5 bg-gradient-to-r from-surface-800 via-surface-800/80 to-surface-850 border-b border-surface-750/80 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-emerald-950/80 border border-emerald-500/30 flex items-center justify-center text-emerald-300 font-bold text-sm shadow-sm">
+                🇫🇷
+              </div>
+              <div>
+                <h2 class="font-display font-bold text-base text-white tracking-wide">Ligue 1 McDonald's</h2>
+                <p class="text-[11px] text-slate-400">Journée 12 · France</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs px-2.5 py-1 rounded-full bg-surface-750 text-slate-300 font-semibold border border-surface-700">
+                1 Match
+              </span>
+            </div>
+          </div>
+
+          <div class="p-3 sm:p-4 space-y-3">
+            
+            <!-- Match 8: PAST Paris Saint-Germain vs Marseille -->
+            <div class="match-card bg-surface-800/90 rounded-xl border border-surface-700/80 p-4 relative overflow-hidden" 
+                 data-match-id="l1-psg-om"
+                 data-status="finished"
+                 data-home="Paris Saint-Germain"
+                 data-away="Olympique de Marseille"
+                 data-competition="Ligue 1">
+              
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-center sm:w-44 flex-shrink-0 gap-3 border-b sm:border-b-0 sm:border-r border-surface-700/60 pb-2 sm:pb-0 sm:pr-4">
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+                      <span class="font-mono font-bold text-slate-300 text-xs uppercase tracking-wider" data-i18n="statusFinished">FT (Full Time)</span>
+                    </div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">17:00 CET</div>
+                  </div>
+                </div>
+
+                <div class="flex-1 space-y-2.5">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-7 h-7 rounded-full bg-blue-900/30 border border-red-500/40 flex items-center justify-center text-xs">🗼</div>
+                      <span class="font-semibold text-sm sm:text-base text-slate-100 team-name">Paris Saint-Germain</span>
+                    </div>
+                    <span class="font-mono font-bold text-xl sm:text-2xl text-slate-100">3</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-7 h-7 rounded-full bg-sky-800/30 border border-sky-400/40 flex items-center justify-center text-xs">⚪</div>
+                      <div class="flex items-center gap-2">
+                        <span class="font-semibold text-sm sm:text-base text-slate-300 team-name">Olympique de Marseille</span>
+                        <span class="red-card-badge" title="Red Card"></span>
+                      </div>
+                    </div>
+                    <span class="font-mono font-bold text-xl sm:text-2xl text-slate-300">0</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+      </div>
+
+      <!-- NO RESULTS PLACEHOLDER -->
+      <div id="noResults" class="hidden bg-surface-850/80 rounded-2xl border border-surface-750/70 p-12 text-center space-y-3">
+        <div class="w-16 h-16 mx-auto rounded-full bg-surface-800 flex items-center justify-center text-slate-400 text-2xl">
+          🔍
+        </div>
+        <h3 class="text-lg font-bold text-white" data-i18n="noResultsTitle">No matches found</h3>
+        <p class="text-xs text-slate-400 max-w-sm mx-auto" data-i18n="noResultsDesc">
+          Try searching for different team names or competitions, or clear your search query to see all games for today.
+        </p>
+        <button onclick="resetSearch()" class="px-4 py-2 bg-brand-500 hover:bg-brand-400 text-slate-950 font-bold text-xs rounded-xl transition-colors" data-i18n="btnResetSearch">
+          Reset Filter
+        </button>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- MINIMAL FOOTER: ONLY COPYRIGHT, DATE, AND APP NAME -->
+  <footer class="mt-auto border-t border-surface-750/70 bg-surface-900/80 py-5">
+    <div class="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-500">
+      <p>© 2026 StreamXI. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- JAVASCRIPT: FILTERING, DATE SWITCHING, I18N & LEFT DRAWER -->
+  <script>
+    // -------------------------------------------------------------
+    // 1. MULTILINGUAL DICTIONARY (EN, FR, ES) WITH FLAGS
+    // -------------------------------------------------------------
+    const translations = {
+      en: {
+        tagline: "Football Schedules & Live Streams",
+        searchPlaceholder: "Search teams, leagues (e.g. Real Madrid, Arsenal, Champions League)...",
+        menuTitle: "Menu Navigation",
+        navFootball: "Football",
+        navLiveTv: "Live TV",
+        badgeSoon: "Soon",
+        topLeagues: "Top Competitions",
+        prevDay: "Previous",
+        nextDay: "Next",
+        badgeToday: "Today",
+        filterAll: "All Matches (8)",
+        filterLive: "Live",
+        filterUpcoming: "Upcoming",
+        filterFinished: "Finished",
+        legendLive: "Green Score: Live Game",
+        legendPast: "White Score: Finished Game",
+        legendRedCard: "Red Card",
+        statusUpcoming: "Upcoming",
+        statusFinished: "FT (Full Time)",
+        startsSoon: "Starts in 25 min",
+        noResultsTitle: "No matches found",
+        noResultsDesc: "Try searching for different team names or competitions, or clear your search query to see all games for today.",
+        btnResetSearch: "Reset Filter"
+      },
+      fr: {
+        tagline: "Calendriers et diffusions de football en direct",
+        searchPlaceholder: "Rechercher équipes, ligues (ex. Real Madrid, Arsenal, Ligue des Champions)...",
+        menuTitle: "Navigation",
+        navFootball: "Football",
+        navLiveTv: "Télé en direct",
+        badgeSoon: "Bientôt",
+        topLeagues: "Compétitions majeures",
+        prevDay: "Précédent",
+        nextDay: "Suivant",
+        badgeToday: "Aujourd'hui",
+        filterAll: "Tous les matchs (8)",
+        filterLive: "En direct",
+        filterUpcoming: "À venir",
+        filterFinished: "Terminés",
+        legendLive: "Score vert : En direct",
+        legendPast: "Score blanc : Match terminé",
+        legendRedCard: "Carton rouge",
+        statusUpcoming: "À venir",
+        statusFinished: "Terminé (Fin du match)",
+        startsSoon: "Commence dans 25 min",
+        noResultsTitle: "Aucun match trouvé",
+        noResultsDesc: "Essayez de rechercher d'autres équipes ou compétitions, ou réinitialisez la recherche.",
+        btnResetSearch: "Réinitialiser"
+      },
+      es: {
+        tagline: "Horarios y retransmisiones de fútbol en vivo",
+        searchPlaceholder: "Buscar equipos, ligas (ej. Real Madrid, Arsenal, Champions League)...",
+        menuTitle: "Navegación",
+        navFootball: "Fútbol",
+        navLiveTv: "TV en vivo",
+        badgeSoon: "Próximamente",
+        topLeagues: "Competiciones destacadas",
+        prevDay: "Anterior",
+        nextDay: "Siguiente",
+        badgeToday: "Hoy",
+        filterAll: "Todos los partidos (8)",
+        filterLive: "En vivo",
+        filterUpcoming: "Próximos",
+        filterFinished: "Finalizados",
+        legendLive: "Marcador verde: En vivo",
+        legendPast: "Marcador blanco: Finalizado",
+        legendRedCard: "Tarjeta roja",
+        statusUpcoming: "Próximo",
+        statusFinished: "Final (Tiempo completo)",
+        startsSoon: "Empieza en 25 min",
+        noResultsTitle: "No se encontraron partidos",
+        noResultsDesc: "Intenta buscar otros nombres de equipos o competiciones, o restablece la búsqueda.",
+        btnResetSearch: "Restablecer filtro"
+      }
+    };
+
+    let currentLang = 'en';
+
+    function detectInitialLanguage() {
+      const navLang = (navigator.language || 'en').toLowerCase().substring(0, 2);
+      if (['en', 'fr', 'es'].includes(navLang)) {
+        return navLang;
+      }
+      return 'en';
+    }
+
+    function changeLanguage(lang) {
+      if (!translations[lang]) return;
+      currentLang = lang;
+
+      const flagMap = { en: '🇬🇧', fr: '🇫🇷', es: '🇪🇸' };
+      document.getElementById('currentLangFlag').textContent = flagMap[lang];
+      document.getElementById('currentLangText').textContent = lang.toUpperCase();
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[lang][key]) {
+          el.textContent = translations[lang][key];
+        }
+      });
+
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (translations[lang][key]) {
+          el.setAttribute('placeholder', translations[lang][key]);
+        }
+      });
+
+      updateDateDisplay();
+      document.getElementById('langMenu').classList.add('hidden');
+    }
+
+    // Toggle Language Dropdown
+    const langButton = document.getElementById('langButton');
+    const langMenu = document.getElementById('langMenu');
+    langButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      langMenu.classList.toggle('hidden');
+    });
+    document.addEventListener('click', () => {
+      langMenu.classList.add('hidden');
+    });
+
+    // -------------------------------------------------------------
+    // 2. LEFT SIDE DRAWER TOGGLE (HAMBURGER OPEN / CLOSE)
+    // -------------------------------------------------------------
+    const openDrawerBtn = document.getElementById('openDrawerBtn');
+    const closeDrawerBtn = document.getElementById('closeDrawerBtn');
+    const sideDrawer = document.getElementById('sideDrawer');
+    const drawerOverlay = document.getElementById('drawerOverlay');
+
+    function openDrawer() {
+      sideDrawer.classList.remove('-translate-x-full');
+      drawerOverlay.classList.remove('opacity-0', 'pointer-events-none');
+      drawerOverlay.classList.add('opacity-100', 'pointer-events-auto');
+    }
+
+    function closeDrawer() {
+      sideDrawer.classList.add('-translate-x-full');
+      drawerOverlay.classList.remove('opacity-100', 'pointer-events-auto');
+      drawerOverlay.classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    openDrawerBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openDrawer();
+    });
+
+    closeDrawerBtn.addEventListener('click', closeDrawer);
+    drawerOverlay.addEventListener('click', closeDrawer);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeDrawer();
+    });
+
+    // -------------------------------------------------------------
+    // 3. DATE NAVIGATION LOGIC (Previous Date, Today, Next Date)
+    // -------------------------------------------------------------
+    let currentDateOffset = 0;
+    const baseDate = new Date();
+
+    function updateDateDisplay() {
+      const targetDate = new Date(baseDate);
+      targetDate.setDate(targetDate.getDate() + currentDateOffset);
+
+      const locales = { en: 'en-US', fr: 'fr-FR', es: 'es-ES' };
+      const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
+      const formatted = targetDate.toLocaleDateString(locales[currentLang] || 'en-US', options);
+
+      document.getElementById('currentDateLabel').textContent = formatted;
+
+      const todayBadge = document.getElementById('todayBadge');
+      if (currentDateOffset === 0) {
+        todayBadge.classList.remove('hidden');
+        todayBadge.textContent = translations[currentLang].badgeToday || 'Today';
+      } else if (currentDateOffset === -1) {
+        todayBadge.classList.remove('hidden');
+        todayBadge.textContent = currentLang === 'fr' ? 'Hier' : (currentLang === 'es' ? 'Ayer' : 'Yesterday');
+      } else if (currentDateOffset === 1) {
+        todayBadge.classList.remove('hidden');
+        todayBadge.textContent = currentLang === 'fr' ? 'Demain' : (currentLang === 'es' ? 'Mañana' : 'Tomorrow');
+      } else {
+        todayBadge.classList.add('hidden');
+      }
+    }
+
+    document.getElementById('prevDateBtn').addEventListener('click', () => {
+      currentDateOffset--;
+      updateDateDisplay();
+      animateFilterTransition();
+    });
+
+    document.getElementById('nextDateBtn').addEventListener('click', () => {
+      currentDateOffset++;
+      updateDateDisplay();
+      animateFilterTransition();
+    });
+
+    // -------------------------------------------------------------
+    // 4. REAL-TIME SEARCH FILTERING
+    // -------------------------------------------------------------
+    const searchInput = document.getElementById('searchInput');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+    let currentStatusFilter = 'all';
+
+    function filterMatches() {
+      const query = searchInput.value.toLowerCase().trim();
+      if (query.length > 0) {
+        clearSearchBtn.classList.remove('hidden');
+      } else {
+        clearSearchBtn.classList.add('hidden');
+      }
+
+      const competitionSections = document.querySelectorAll('.competition-group');
+      let totalVisibleMatches = 0;
+
+      competitionSections.forEach(section => {
+        const competitionName = (section.getAttribute('data-competition') || '').toLowerCase();
+        const cards = section.querySelectorAll('.match-card');
+        let visibleInGroup = 0;
+
+        cards.forEach(card => {
+          const homeTeam = (card.getAttribute('data-home') || '').toLowerCase();
+          const awayTeam = (card.getAttribute('data-away') || '').toLowerCase();
+          const status = card.getAttribute('data-status') || '';
+
+          const matchesQuery = query === '' || 
+            homeTeam.includes(query) || 
+            awayTeam.includes(query) || 
+            competitionName.includes(query);
+
+          const matchesStatus = currentStatusFilter === 'all' || status === currentStatusFilter;
+
+          if (matchesQuery && matchesStatus) {
+            card.style.display = 'block';
+            visibleInGroup++;
+            totalVisibleMatches++;
+          } else {
+            card.style.display = 'none';
+          }
+        });
+
+        if (visibleInGroup === 0) {
+          section.style.display = 'none';
+        } else {
+          section.style.display = 'block';
+        }
+      });
+
+      const noResults = document.getElementById('noResults');
+      if (totalVisibleMatches === 0) {
+        noResults.classList.remove('hidden');
+      } else {
+        noResults.classList.add('hidden');
+      }
+    }
+
+    searchInput.addEventListener('input', filterMatches);
+    clearSearchBtn.addEventListener('click', resetSearch);
+
+    function resetSearch() {
+      searchInput.value = '';
+      clearSearchBtn.classList.add('hidden');
+      filterMatches();
+    }
+
+    function filterByLeague(leagueKeyword) {
+      searchInput.value = leagueKeyword;
+      filterMatches();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // -------------------------------------------------------------
+    // 5. STATUS FILTER BUTTONS
+    // -------------------------------------------------------------
+    function setStatusFilter(status) {
+      currentStatusFilter = status;
+
+      const buttons = ['all', 'live', 'upcoming', 'finished'];
+      buttons.forEach(b => {
+        const btn = document.getElementById(`filter-${b}`);
+        if (b === status) {
+          btn.className = 'flex-1 sm:flex-initial px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-brand-500 text-white shadow-sm transition-all';
+        } else {
+          btn.className = 'flex-1 sm:flex-initial px-3.5 py-1.5 text-xs font-medium text-slate-400 hover:text-slate-200 rounded-lg transition-all';
+        }
+      });
+
+      animateFilterTransition();
+      filterMatches();
+    }
+
+    function animateFilterTransition() {
+      const container = document.getElementById('matchesContainer');
+      container.style.opacity = '0.4';
+      container.style.transition = 'opacity 0.2s ease';
+      setTimeout(() => {
+        container.style.opacity = '1';
+      }, 150);
+    }
+
+    // -------------------------------------------------------------
+    // INITIALIZATION
+    // -------------------------------------------------------------
+    window.addEventListener('DOMContentLoaded', () => {
+      const initialLang = detectInitialLanguage();
+      changeLanguage(initialLang);
+      updateDateDisplay();
+    });
+  </script>
+
+</body>
+</html>
