@@ -27,10 +27,29 @@ streamsRouter.get('/matches/:id', async (req: Request<{ id: string }>, res: Resp
 });
 
 /**
+ * GET /api/streams/status/:channelId
+ * Check if a broadcast is already created and active for a specific TV channel
+ */
+streamsRouter.get('/status/:channelId', (req: Request<{ channelId: string }>, res: Response) => {
+  const channelId = String(req.params.channelId);
+  const clientIp = getClientIp(req);
+  const isActive = streamRelayManager.isBroadcastActive(channelId);
+  const viewers = streamRelayManager.getChannelClientsCount(channelId);
+  logger.info(`[Broadcast] Status queried for channel ${channelId} by client [IP: ${clientIp}]: ${isActive ? 'Active' : 'Not created'} (${viewers} viewers)`);
+  res.json({
+    channelId,
+    active: isActive,
+    viewersCount: viewers,
+  });
+});
+
+/**
  * GET /api/streams/relay/:channelId
  * Multiplexed Stream Relay:
- * The backend creates a single upstream connection to Xtream IPTV.
- * Multiple simultaneous viewers connect to the existing backend stream.
+ * The backend first checks if a broadcast is already created for the TV channel.
+ * If yes: simply connects the client to it.
+ * If not: creates a new broadcaster on the TV channel.
+ * Everything is logged with client IP.
  */
 streamsRouter.get('/relay/:channelId', async (req: Request<{ channelId: string }>, res: Response) => {
   const channelId = String(req.params.channelId);

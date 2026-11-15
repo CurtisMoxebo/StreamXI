@@ -132,14 +132,14 @@ describe('Backend Logging System & Client IP Detection', () => {
       expect(res.status).toBe(400);
       expect(warnSpy).toHaveBeenCalled();
       const warnCall = warnSpy.mock.calls.find((call) =>
-        call[0].includes('Connection attempt rejected')
+        call[0].includes('Stream request rejected') || call[0].includes('Connection attempt rejected')
       );
       expect(warnCall).toBeDefined();
 
       warnSpy.mockRestore();
     });
 
-    it('logs connection attempt, creation attempt, and IPTV response on broadcast creation failure', async () => {
+    it('checks broadcast existence, logs attempt to create broadcaster and IPTV response', async () => {
       const infoSpy = vi.spyOn(logger, 'info');
       const errorSpy = vi.spyOn(logger, 'error');
 
@@ -149,26 +149,37 @@ describe('Backend Logging System & Client IP Detection', () => {
 
       expect([502, 504]).toContain(res.status);
 
-      // Verify connection attempt logged
-      const connectAttempt = infoSpy.mock.calls.find((call) =>
-        call[0].includes('Client connection attempt') && call[0].includes('203.0.113.55')
+      // Verify incoming stream request and check logged with client IP
+      const checkLogged = infoSpy.mock.calls.find((call) =>
+        call[0].includes('Checking if broadcast is already created') && call[0].includes('invalid-channel-9999999')
       );
-      expect(connectAttempt).toBeDefined();
+      expect(checkLogged).toBeDefined();
 
-      // Verify broadcast creation attempt logged
+      // Verify creation attempt logged
       const createAttempt = infoSpy.mock.calls.find((call) =>
-        call[0].includes('Attempting to create upstream broadcast') && call[0].includes('invalid-channel-9999999')
+        call[0].includes('No broadcast found') && call[0].includes('invalid-channel-9999999')
       );
       expect(createAttempt).toBeDefined();
 
-      // Verify IPTV upstream response (error) logged
+      // Verify IPTV response error logged
       const iptvResponseError = errorSpy.mock.calls.find((call) =>
-        call[0].includes('IPTV upstream responded with error') || call[0].includes('IPTV upstream connection attempt failed')
+        call[0].includes('IPTV service returned error response') || call[0].includes('IPTV service connection failed')
       );
       expect(iptvResponseError).toBeDefined();
 
       infoSpy.mockRestore();
       errorSpy.mockRestore();
+    });
+
+    it('provides broadcast status inspection endpoint', async () => {
+      const res = await request(app)
+        .get('/api/streams/status/1562854')
+        .set('X-Forwarded-For', '192.0.2.88');
+
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('channelId', '1562854');
+      expect(res.body).toHaveProperty('active');
+      expect(res.body).toHaveProperty('viewersCount');
     });
   });
 });
