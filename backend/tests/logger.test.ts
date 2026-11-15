@@ -119,27 +119,28 @@ describe('Backend Logging System & Client IP Detection', () => {
     });
   });
 
-  describe('Broadcast Creation Error Logging', () => {
+  describe('Broadcast Creation, Connect, Disconnect & IPTV Response Logging', () => {
     const app = createApp();
 
-    it('logs error when trying to create a broadcast with invalid or missing channel ID', async () => {
-      const errorSpy = vi.spyOn(logger, 'error');
+    it('logs warning when connection attempt is rejected due to invalid channel ID', async () => {
+      const warnSpy = vi.spyOn(logger, 'warn');
 
       const res = await request(app)
         .get('/api/streams/relay/%20')
         .set('X-Forwarded-For', '198.51.100.99');
 
       expect(res.status).toBe(400);
-      expect(errorSpy).toHaveBeenCalled();
-      const errorCall = errorSpy.mock.calls.find((call) =>
-        call[0].includes('Broadcast creation rejected')
+      expect(warnSpy).toHaveBeenCalled();
+      const warnCall = warnSpy.mock.calls.find((call) =>
+        call[0].includes('Connection attempt rejected')
       );
-      expect(errorCall).toBeDefined();
+      expect(warnCall).toBeDefined();
 
-      errorSpy.mockRestore();
+      warnSpy.mockRestore();
     });
 
-    it('logs error when upstream IPTV connection fails during broadcast creation', async () => {
+    it('logs connection attempt, creation attempt, and IPTV response on broadcast creation failure', async () => {
+      const infoSpy = vi.spyOn(logger, 'info');
       const errorSpy = vi.spyOn(logger, 'error');
 
       const res = await request(app)
@@ -147,17 +148,26 @@ describe('Backend Logging System & Client IP Detection', () => {
         .set('X-Forwarded-For', '203.0.113.55');
 
       expect([502, 504]).toContain(res.status);
-      expect(errorSpy).toHaveBeenCalled();
 
-      const failedCall = errorSpy.mock.calls.find((call) =>
-        call[0].includes('Failed to create broadcast for channel')
+      // Verify connection attempt logged
+      const connectAttempt = infoSpy.mock.calls.find((call) =>
+        call[0].includes('Client connection attempt') && call[0].includes('203.0.113.55')
       );
-      expect(failedCall).toBeDefined();
-      expect(failedCall?.[1]).toMatchObject({
-        clientIp: '203.0.113.55',
-        channelId: 'invalid-channel-9999999',
-      });
+      expect(connectAttempt).toBeDefined();
 
+      // Verify broadcast creation attempt logged
+      const createAttempt = infoSpy.mock.calls.find((call) =>
+        call[0].includes('Attempting to create upstream broadcast') && call[0].includes('invalid-channel-9999999')
+      );
+      expect(createAttempt).toBeDefined();
+
+      // Verify IPTV upstream response (error) logged
+      const iptvResponseError = errorSpy.mock.calls.find((call) =>
+        call[0].includes('IPTV upstream responded with error') || call[0].includes('IPTV upstream connection attempt failed')
+      );
+      expect(iptvResponseError).toBeDefined();
+
+      infoSpy.mockRestore();
       errorSpy.mockRestore();
     });
   });
