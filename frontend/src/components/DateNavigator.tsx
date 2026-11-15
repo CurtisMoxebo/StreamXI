@@ -62,12 +62,12 @@ export const DateNavigator: React.FC<DateNavigatorProps> = ({
           <button
             onClick={onPrevDate}
             aria-label="Previous Day"
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-surface-800 hover:bg-surface-750 border border-surface-700 text-xs font-semibold text-slate-300 hover:text-white transition-all shadow-sm active:scale-95"
+            title="Previous Day"
+            className="p-2.5 rounded-xl bg-surface-800 hover:bg-surface-750 border border-surface-700 text-slate-300 hover:text-white transition-all shadow-sm active:scale-95 flex items-center justify-center"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            <span className="hidden md:inline">{t('prevDay')}</span>
           </button>
 
           <div className="flex items-center gap-2.5 px-4 py-2 rounded-xl bg-surface-900/90 border border-surface-700/90 shadow-inner">
@@ -90,9 +90,9 @@ export const DateNavigator: React.FC<DateNavigatorProps> = ({
           <button
             onClick={onNextDate}
             aria-label="Next Day"
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-surface-800 hover:bg-surface-750 border border-surface-700 text-xs font-semibold text-slate-300 hover:text-white transition-all shadow-sm active:scale-95"
+            title="Next Day"
+            className="p-2.5 rounded-xl bg-surface-800 hover:bg-surface-750 border border-surface-700 text-slate-300 hover:text-white transition-all shadow-sm active:scale-95 flex items-center justify-center"
           >
-            <span className="hidden md:inline">{t('nextDay')}</span>
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
