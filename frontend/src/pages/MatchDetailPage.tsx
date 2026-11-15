@@ -3,11 +3,14 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { MatchHeader } from '../components/MatchHeader.js';
 import { VideoPlayer } from '../components/VideoPlayer.js';
+import { LineupsTab } from '../components/tabs/LineupsTab.js';
+import { StatsTab } from '../components/tabs/StatsTab.js';
+import { AiInsightsTab } from '../components/tabs/AiInsightsTab.js';
 import { api } from '../api/client.js';
 import { Match, MatchStreamInfo } from '../types/index.js';
 
 interface MatchDetailPageProps {
-  // Slots for the 3 lazy tabs (implemented in Step 5)
+  // Optional custom renderer for testing or extensions
   renderTabContent?: (activeTab: 'lineups' | 'stats' | 'ai', match: Match) => React.ReactNode;
 }
 
@@ -70,6 +73,26 @@ export const MatchDetailPage: React.FC<MatchDetailPageProps> = ({ renderTabConte
 
   const isLiveOrUpcoming = match.status === 'live' || match.status === 'upcoming';
   const activeChannelId = channelFromUrl || streamInfo?.activeChannelId;
+
+  // Render lazy tabs
+  const renderDefaultTab = () => {
+    switch (activeTab) {
+      case 'lineups':
+        return <LineupsTab matchId={match.id} />;
+      case 'stats':
+        return <StatsTab matchId={match.id} />;
+      case 'ai':
+        return isLiveOrUpcoming ? (
+          <AiInsightsTab matchId={match.id} />
+        ) : (
+          <div className="text-center py-8 text-xs text-slate-400">
+            AI insights are only available for live or upcoming matches.
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
@@ -135,13 +158,7 @@ export const MatchDetailPage: React.FC<MatchDetailPageProps> = ({ renderTabConte
 
         {/* Tab Content Display Area */}
         <div className="p-2 sm:p-4 mt-2">
-          {renderTabContent ? (
-            renderTabContent(activeTab, match)
-          ) : (
-            <div className="text-center py-8 text-xs text-slate-400">
-              Active tab: {activeTab}
-            </div>
-          )}
+          {renderTabContent ? renderTabContent(activeTab, match) : renderDefaultTab()}
         </div>
       </div>
 

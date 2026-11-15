@@ -10,6 +10,9 @@ vi.mock('../api/client.js', () => ({
   api: {
     getMatchById: vi.fn(),
     getMatchStreamInfo: vi.fn(),
+    getMatchLineups: vi.fn(),
+    getMatchStats: vi.fn(),
+    getMatchAiInsights: vi.fn(),
   },
 }));
 
@@ -57,6 +60,7 @@ const mockStreamEnded = {
 describe('Frontend Step 4: MatchDetailPage & Video Player Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    (api.getMatchLineups as any).mockResolvedValue(null);
   });
 
   it('renders match scoreboard and live video player with channel switcher', async () => {
