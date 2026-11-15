@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/Layout.js';
 import { HomePage } from './pages/HomePage.js';
+import { MatchDetailPage } from './pages/MatchDetailPage.js';
 
 export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -21,7 +22,7 @@ export default function App() {
           />
           <Route
             path="/match/:id"
-            element={<div className="p-8 text-center text-white">StreamXI Match Detail</div>}
+            element={<MatchDetailPage />}
           />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
