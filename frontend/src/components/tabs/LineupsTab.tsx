@@ -40,6 +40,30 @@ export function formatPlayerDisplayName(name: string, number: number): string {
   return `${number} ${firstInitial}. ${lastName}`;
 }
 
+/**
+ * Ensures player positions are displayed with full standard tactical position codes (e.g. GK, CB, LB, RB, DM, CM, CAM, RW, LW, ST)
+ * rather than single-letter codes (G, D, M, F).
+ */
+export function formatPositionCode(pos?: string, starterIndex?: number, subIndex?: number): string {
+  const p = (pos || '').toUpperCase().trim();
+  if (['GK', 'CB', 'LB', 'RB', 'DM', 'CM', 'CAM', 'RW', 'LW', 'ST', 'CF', 'LWB', 'RWB', 'AM', 'RM', 'LM'].includes(p)) {
+    return p;
+  }
+  if (starterIndex !== undefined) {
+    const starterRoles = ['GK', 'RB', 'CB', 'CB', 'LB', 'DM', 'CM', 'CAM', 'RW', 'ST', 'LW'];
+    return starterRoles[starterIndex] || 'CM';
+  }
+  if (p === 'G') return 'GK';
+  if (p === 'D') return 'CB';
+  if (p === 'M') return 'CM';
+  if (p === 'F' || p === 'A') return 'ST';
+  if (subIndex !== undefined) {
+    const benchRoles = ['GK', 'CB', 'LB', 'RB', 'DM', 'CM', 'CAM', 'RW', 'ST'];
+    return benchRoles[subIndex % benchRoles.length];
+  }
+  return p && p !== 'SUB' ? p : 'CM';
+}
+
 export const LineupsTab: React.FC<LineupsTabProps> = ({ matchId }) => {
   const { t } = useTranslation();
   const [lineups, setLineups] = useState<MatchLineups | null>(null);
@@ -143,7 +167,7 @@ export const LineupsTab: React.FC<LineupsTabProps> = ({ matchId }) => {
         </svg>
 
         {/* Starting XI Players - Home Team (Left Half) */}
-        {home.startingXI.map((player: PitchPlayer) => {
+        {home.startingXI.map((player: PitchPlayer, i: number) => {
           const displayName = formatPlayerDisplayName(player.name, player.number);
           const faceUrl = getPlayerFaceUrl(player);
           return (
@@ -151,7 +175,7 @@ export const LineupsTab: React.FC<LineupsTabProps> = ({ matchId }) => {
               key={player.id}
               style={{ left: `${player.gridX}%`, top: `${player.gridY}%` }}
               className="absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group cursor-pointer z-10"
-              title={`${player.name} (#${player.number}) - ${player.position}`}
+              title={`${player.name} (#${player.number}) - ${formatPositionCode(player.position, i)}`}
             >
               <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-surface-900 border-2 border-brand-400 overflow-hidden shadow-lg group-hover:scale-110 group-hover:border-white transition-all flex items-center justify-center">
                 {faceUrl ? (
@@ -179,18 +203,16 @@ export const LineupsTab: React.FC<LineupsTabProps> = ({ matchId }) => {
                 <span className="text-[8px] sm:text-[10px] font-bold text-white bg-surface-900/95 px-1.5 py-0.5 rounded-md shadow-md whitespace-nowrap border border-white/10 max-w-[85px] sm:max-w-[110px] truncate text-center leading-tight">
                   {displayName}
                 </span>
-                {player.position && (
-                  <span className="text-[7px] sm:text-[8px] font-extrabold text-brand-300 bg-surface-950/80 px-1 py-0.2 rounded mt-0.5 uppercase tracking-wider border border-brand-400/20">
-                    {player.position}
-                  </span>
-                )}
+                <span className="text-[7px] sm:text-[8px] font-extrabold text-brand-300 bg-surface-950/80 px-1 py-0.2 rounded mt-0.5 uppercase tracking-wider border border-brand-400/20">
+                  {formatPositionCode(player.position, i)}
+                </span>
               </div>
             </div>
           );
         })}
 
         {/* Starting XI Players - Away Team (Right Half) */}
-        {away.startingXI.map((player: PitchPlayer) => {
+        {away.startingXI.map((player: PitchPlayer, i: number) => {
           const displayName = formatPlayerDisplayName(player.name, player.number);
           const faceUrl = getPlayerFaceUrl(player);
           return (
@@ -198,7 +220,7 @@ export const LineupsTab: React.FC<LineupsTabProps> = ({ matchId }) => {
               key={player.id}
               style={{ left: `${player.gridX}%`, top: `${player.gridY}%` }}
               className="absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group cursor-pointer z-10"
-              title={`${player.name} (#${player.number}) - ${player.position}`}
+              title={`${player.name} (#${player.number}) - ${formatPositionCode(player.position, i)}`}
             >
               <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-surface-900 border-2 border-accent-cyan overflow-hidden shadow-lg group-hover:scale-110 group-hover:border-white transition-all flex items-center justify-center">
                 {faceUrl ? (
@@ -226,11 +248,9 @@ export const LineupsTab: React.FC<LineupsTabProps> = ({ matchId }) => {
                 <span className="text-[8px] sm:text-[10px] font-bold text-white bg-surface-900/95 px-1.5 py-0.5 rounded-md shadow-md whitespace-nowrap border border-white/10 max-w-[85px] sm:max-w-[110px] truncate text-center leading-tight">
                   {displayName}
                 </span>
-                {player.position && (
-                  <span className="text-[7px] sm:text-[8px] font-extrabold text-accent-cyan bg-surface-950/80 px-1 py-0.2 rounded mt-0.5 uppercase tracking-wider border border-accent-cyan/20">
-                    {player.position}
-                  </span>
-                )}
+                <span className="text-[7px] sm:text-[8px] font-extrabold text-accent-cyan bg-surface-950/80 px-1 py-0.2 rounded mt-0.5 uppercase tracking-wider border border-accent-cyan/20">
+                  {formatPositionCode(player.position, i)}
+                </span>
               </div>
             </div>
           );
@@ -276,7 +296,7 @@ export const LineupsTab: React.FC<LineupsTabProps> = ({ matchId }) => {
               {t('substitutes')} ({home.substitutes.length})
             </span>
             <div className="grid grid-cols-2 gap-2 text-xs">
-              {home.substitutes.map((sub: PitchPlayer) => {
+              {home.substitutes.map((sub: PitchPlayer, i: number) => {
                 const subDisplayName = formatPlayerDisplayName(sub.name, sub.number);
                 const faceUrl = getPlayerFaceUrl(sub);
                 return (
@@ -300,9 +320,9 @@ export const LineupsTab: React.FC<LineupsTabProps> = ({ matchId }) => {
                     </div>
                     <div className="flex flex-col min-w-0">
                       <span className="text-slate-200 truncate leading-tight">{subDisplayName}</span>
-                      {sub.position && (
-                        <span className="text-[9px] font-bold text-brand-400/80 uppercase tracking-wide">{sub.position}</span>
-                      )}
+                      <span className="text-[9px] font-bold text-brand-400/80 uppercase tracking-wide">
+                        {formatPositionCode(sub.position, undefined, i)}
+                      </span>
                     </div>
                   </div>
                 );
@@ -347,7 +367,7 @@ export const LineupsTab: React.FC<LineupsTabProps> = ({ matchId }) => {
               {t('substitutes')} ({away.substitutes.length})
             </span>
             <div className="grid grid-cols-2 gap-2 text-xs">
-              {away.substitutes.map((sub: PitchPlayer) => {
+              {away.substitutes.map((sub: PitchPlayer, i: number) => {
                 const subDisplayName = formatPlayerDisplayName(sub.name, sub.number);
                 const faceUrl = getPlayerFaceUrl(sub);
                 return (
@@ -371,9 +391,9 @@ export const LineupsTab: React.FC<LineupsTabProps> = ({ matchId }) => {
                     </div>
                     <div className="flex flex-col min-w-0">
                       <span className="text-slate-200 truncate leading-tight">{subDisplayName}</span>
-                      {sub.position && (
-                        <span className="text-[9px] font-bold text-accent-cyan/80 uppercase tracking-wide">{sub.position}</span>
-                      )}
+                      <span className="text-[9px] font-bold text-accent-cyan/80 uppercase tracking-wide">
+                        {formatPositionCode(sub.position, undefined, i)}
+                      </span>
                     </div>
                   </div>
                 );

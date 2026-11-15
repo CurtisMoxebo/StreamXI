@@ -174,6 +174,43 @@ const KNOWN_COACHES: Record<string, string> = {
   nice: 'Franck Haise',
 };
 
+export function normalizePositionCode(pos?: string, name?: string, starterIndex?: number, subIndex?: number): string {
+  const p = (pos || '').toUpperCase().trim();
+  const n = (name || '').toLowerCase().trim();
+
+  if (['GK', 'CB', 'LB', 'RB', 'DM', 'CM', 'CAM', 'RW', 'LW', 'ST', 'CF', 'LWB', 'RWB', 'AM', 'RM', 'LM'].includes(p)) {
+    return p;
+  }
+
+  if (n.includes('goal')) return 'GK';
+  if (n.includes('defensive mid') || n.includes('holding mid')) return 'DM';
+  if (n.includes('attacking mid')) return 'CAM';
+  if (n.includes('central mid') || n.includes('centre mid')) return 'CM';
+  if (n.includes('right back')) return 'RB';
+  if (n.includes('left back')) return 'LB';
+  if (n.includes('center back') || n.includes('centre back')) return 'CB';
+  if (n.includes('right wing')) return 'RW';
+  if (n.includes('left wing')) return 'LW';
+  if (n.includes('striker') || n.includes('centre forward') || n.includes('center forward')) return 'ST';
+
+  if (starterIndex !== undefined) {
+    const starterRoles = ['GK', 'RB', 'CB', 'CB', 'LB', 'DM', 'CM', 'CAM', 'RW', 'ST', 'LW'];
+    return starterRoles[starterIndex] || 'CM';
+  }
+
+  if (p === 'G') return 'GK';
+  if (p === 'D') return 'CB';
+  if (p === 'M') return 'CM';
+  if (p === 'F' || p === 'A') return 'ST';
+
+  if (subIndex !== undefined) {
+    const benchRoles = ['GK', 'CB', 'LB', 'RB', 'DM', 'CM', 'CAM', 'RW', 'ST'];
+    return benchRoles[subIndex % benchRoles.length];
+  }
+
+  return p && p !== 'SUB' ? p : 'CM';
+}
+
 export class RealFootballProvider implements IFootballDataProvider {
   // In-memory cache for match objects and their league code
   private matchCache = new Map<string, { match: Match; leagueCode: string }>();
@@ -528,7 +565,7 @@ export class RealFootballProvider implements IFootballDataProvider {
         id: String(a.id || `p-${isHome ? 'h' : 'a'}-${i}`),
         name: athleteName,
         number: parseInt(a.jersey) || jerseyDefaults[i] || i + 1,
-        position: a.position?.abbreviation || (i === 0 ? 'GK' : (i <= 4 ? 'DF' : (i <= 7 ? 'MF' : 'FW'))),
+        position: normalizePositionCode(a.position?.abbreviation, a.position?.name, i),
         image: startingPhotos[i] || a.headshot?.href,
         gridX: coords.gridX,
         gridY: coords.gridY,
@@ -541,7 +578,7 @@ export class RealFootballProvider implements IFootballDataProvider {
         id: String(a.id || `sub-${isHome ? 'h' : 'a'}-${i}`),
         name: athleteName,
         number: parseInt(a.jersey) || 12 + i,
-        position: a.position?.abbreviation || 'SUB',
+        position: normalizePositionCode(a.position?.abbreviation, a.position?.name, undefined, i),
         image: subsPhotos[i] || a.headshot?.href,
         gridX: 0,
         gridY: 0,
@@ -828,7 +865,7 @@ export class RealFootballProvider implements IFootballDataProvider {
         id: String(athleteId || `p-${isHome ? 'h' : 'a'}-${i}`),
         name: athleteName,
         number: parseInt(p.jersey) || i + 1,
-        position: p.position?.abbreviation || (i === 0 ? 'GK' : 'MF'),
+        position: normalizePositionCode(p.position?.abbreviation, p.position?.name, i),
         image: startingPhotos[i] || p.athlete?.headshot?.href,
         gridX: coords.gridX,
         gridY: coords.gridY,
@@ -842,7 +879,7 @@ export class RealFootballProvider implements IFootballDataProvider {
         id: String(athleteId || `sub-${isHome ? 'h' : 'a'}-${i}`),
         name: athleteName,
         number: parseInt(p.jersey) || 12 + i,
-        position: p.position?.abbreviation || 'SUB',
+        position: normalizePositionCode(p.position?.abbreviation, p.position?.name, undefined, i),
         image: subsPhotos[i] || p.athlete?.headshot?.href,
         gridX: 0,
         gridY: 0,
