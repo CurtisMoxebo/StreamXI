@@ -70,6 +70,7 @@ export interface TeamLineup {
   formation: string;
   confirmed: boolean;
   coach: string;
+  coachImage?: string;
   startingXI: PitchPlayer[];
   substitutes: PitchPlayer[];
 }

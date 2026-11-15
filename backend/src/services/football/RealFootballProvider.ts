@@ -35,6 +35,145 @@ const TOP_LEAGUES: LeagueMeta[] = [
   { code: 'fifa.friendly', name: 'International Friendlies', slug: 'friendlies', country: 'World', countryCode: 'WW', order: 9, logo: 'https://a.espncdn.com/i/leaguelogos/soccer/500/53.png' },
 ];
 
+const KNOWN_COACHES: Record<string, string> = {
+  // National Teams
+  cyprus: 'Sofronis Avgousti',
+  lithuania: 'Edgaras Jankauskas',
+  portugal: 'Roberto Martínez',
+  poland: 'Michał Probierz',
+  scotland: 'Steve Clarke',
+  croatia: 'Zlatko Dalić',
+  denmark: 'Brian Riemer',
+  spain: 'Luis de la Fuente',
+  switzerland: 'Murat Yakin',
+  serbia: 'Dragan Stojković',
+  netherlands: 'Ronald Koeman',
+  hungary: 'Marco Rossi',
+  germany: 'Julian Nagelsmann',
+  'bosnia and herzegovina': 'Sergej Barbarez',
+  bosnia: 'Sergej Barbarez',
+  sweden: 'Jon Dahl Tomasson',
+  slovakia: 'Francesco Calzona',
+  england: 'Thomas Tuchel',
+  france: 'Didier Deschamps',
+  italy: 'Luciano Spalletti',
+  belgium: 'Domenico Tedesco',
+  israel: 'Ran Ben Shimon',
+  norway: 'Ståle Solbakken',
+  austria: 'Ralf Rangnick',
+  slovenia: 'Matjaž Kek',
+  turkey: 'Vincenzo Montella',
+  wales: 'Craig Bellamy',
+  iceland: 'Åge Hareide',
+  montenegro: 'Robert Prosinečki',
+  'czech republic': 'Ivan Hašek',
+  czechia: 'Ivan Hašek',
+  ukraine: 'Serhiy Rebrov',
+  albania: 'Sylvinho',
+  georgia: 'Willy Sagnol',
+  greece: 'Ivan Jovanović',
+  'republic of ireland': 'Heimir Hallgrímsson',
+  ireland: 'Heimir Hallgrímsson',
+  'northern ireland': "Michael O'Neill",
+  finland: 'Markku Kanerva',
+  romania: 'Mircea Lucescu',
+  kosovo: 'Franco Foda',
+  luxembourg: 'Luc Holtz',
+  bulgaria: 'Ilian Iliev',
+  belarus: 'Carlos Alós',
+  estonia: 'Jürgen Henn',
+  azerbaijan: 'Fernando Santos',
+  kazakhstan: 'Stanislav Cherchesov',
+  'north macedonia': 'Blagoja Milevski',
+  armenia: 'Suren Chakhalyan',
+  'faroe islands': 'Håkan Ericson',
+  latvia: 'Paolo Nicolato',
+  moldova: 'Serghei Cleșcenco',
+  malta: 'Michele Marcolini',
+  andorra: 'Koldo Álvarez',
+  'san marino': 'Roberto Cevoli',
+  gibraltar: 'Julio César Ribas',
+  liechtenstein: 'Konrad Fünfstück',
+  argentina: 'Lionel Scaloni',
+  brazil: 'Dorival Júnior',
+  colombia: 'Néstor Lorenzo',
+  uruguay: 'Marcelo Bielsa',
+  usa: 'Mauricio Pochettino',
+  mexico: 'Javier Aguirre',
+
+  // Premier League
+  'manchester city': 'Pep Guardiola',
+  arsenal: 'Mikel Arteta',
+  liverpool: 'Arne Slot',
+  chelsea: 'Enzo Maresca',
+  'manchester united': 'Rúben Amorim',
+  'tottenham hotspur': 'Ange Postecoglou',
+  tottenham: 'Ange Postecoglou',
+  'aston villa': 'Unai Emery',
+  'newcastle united': 'Eddie Howe',
+  newcastle: 'Eddie Howe',
+  brighton: 'Fabian Hürzeler',
+  brentford: 'Thomas Frank',
+  fulham: 'Marco Silva',
+  'west ham united': 'Julen Lopetegui',
+  'west ham': 'Julen Lopetegui',
+  'crystal palace': 'Oliver Glasner',
+  everton: 'Sean Dyche',
+  'wolverhampton wanderers': "Gary O'Neil",
+  wolves: "Gary O'Neil",
+  'nottingham forest': 'Nuno Espírito Santo',
+  'leicester city': 'Ruud van Nistelrooy',
+  leicester: 'Ruud van Nistelrooy',
+  'ipswich town': 'Kieran McKenna',
+  ipswich: 'Kieran McKenna',
+  southampton: 'Russell Martin',
+
+  // La Liga
+  'real madrid': 'Carlo Ancelotti',
+  barcelona: 'Hansi Flick',
+  'atletico madrid': 'Diego Simeone',
+  'atlético madrid': 'Diego Simeone',
+  girona: 'Míchel',
+  'athletic club': 'Ernesto Valverde',
+  'athletic bilbao': 'Ernesto Valverde',
+  'real sociedad': 'Imanol Alguacil',
+  'real betis': 'Manuel Pellegrini',
+  villarreal: 'Marcelino',
+  sevilla: 'García Pimienta',
+  'celta vigo': 'Claudio Giráldez',
+
+  // Bundesliga
+  'bayern munich': 'Vincent Kompany',
+  'bayern münchen': 'Vincent Kompany',
+  'bayer leverkusen': 'Xabi Alonso',
+  'borussia dortmund': 'Nuri Şahin',
+  'rb leipzig': 'Marco Rose',
+  'eintracht frankfurt': 'Dino Toppmöller',
+  'vfb stuttgart': 'Sebastian Hoeneß',
+
+  // Serie A
+  'inter milan': 'Simone Inzaghi',
+  inter: 'Simone Inzaghi',
+  'ac milan': 'Paulo Fonseca',
+  milan: 'Paulo Fonseca',
+  juventus: 'Thiago Motta',
+  napoli: 'Antonio Conte',
+  atalanta: 'Gian Piero Gasperini',
+  roma: 'Claudio Ranieri',
+  'as roma': 'Claudio Ranieri',
+  lazio: 'Marco Baroni',
+  fiorentina: 'Raffaele Palladino',
+
+  // Ligue 1
+  'paris saint-germain': 'Luis Enrique',
+  psg: 'Luis Enrique',
+  monaco: 'Adi Hütter',
+  marseille: 'Roberto De Zerbi',
+  lille: 'Bruno Génésio',
+  lyon: 'Pierre Sage',
+  nice: 'Franck Haise',
+};
+
 export class RealFootballProvider implements IFootballDataProvider {
   // In-memory cache for match objects and their league code
   private matchCache = new Map<string, { match: Match; leagueCode: string }>();
@@ -110,6 +249,70 @@ export class RealFootballProvider implements IFootballDataProvider {
 
   private teamRosterCache = new Map<string, any[]>();
   private playerPhotoCache = new Map<string, string | undefined>();
+  private coachCache = new Map<string, { name: string; image?: string }>();
+
+  async resolveCoach(teamName: string, reportedCoach?: string): Promise<{ name: string; image?: string }> {
+    const cacheKey = (teamName || '').toLowerCase().trim();
+    if (this.coachCache.has(cacheKey)) {
+      return this.coachCache.get(cacheKey)!;
+    }
+
+    let coachName = '';
+    const cleanReported = (reportedCoach || '').trim();
+    if (cleanReported && !/^(head coach|visiting coach|coach|manager)$/i.test(cleanReported)) {
+      coachName = cleanReported;
+    } else {
+      // Check known coaches dictionary
+      const lower = cacheKey;
+      for (const [team, manager] of Object.entries(KNOWN_COACHES)) {
+        if (lower === team || lower.includes(team) || team.includes(lower)) {
+          coachName = manager;
+          break;
+        }
+      }
+
+      // If still not found, try Wikipedia manager lookup
+      if (!coachName) {
+        coachName = await this.fetchWikiManager(teamName);
+      }
+    }
+
+    if (!coachName) {
+      coachName = teamName ? `${teamName} Head Coach` : 'Head Coach';
+    }
+
+    const coachImage = await this.resolveRealPlayerPhoto(coachName);
+    const result = { name: coachName, image: coachImage };
+    this.coachCache.set(cacheKey, result);
+    return result;
+  }
+
+  private async fetchWikiManager(teamName: string): Promise<string> {
+    if (!teamName) return '';
+    const titles = [
+      teamName + ' national football team',
+      teamName + ' F.C.',
+      teamName + ' FC',
+      teamName,
+    ];
+    for (const title of titles) {
+      try {
+        const url = `https://en.wikipedia.org/w/api.php?action=query&prop=revisions&titles=${encodeURIComponent(title)}&rvslots=*&rvprop=content&formatversion=2&format=json`;
+        const res = await fetch(url, { signal: AbortSignal.timeout(3000) });
+        if (!res.ok) continue;
+        const data = await res.json();
+        const content = data.query?.pages?.[0]?.revisions?.[0]?.slots?.main?.content || '';
+        if (!content) continue;
+        const match = content.match(/\|\s*(?:coach|manager|head_coach)\s*=\s*(?:\{\{[^}]+\}\}\s*)*\[\[([^\]\|]+)/i);
+        if (match && match[1] && !match[1].includes(':')) {
+          return match[1].trim();
+        }
+      } catch {
+        // continue
+      }
+    }
+    return '';
+  }
 
   private async resolveRealPlayerPhoto(name: string): Promise<string | undefined> {
     const cleanName = (name || '').trim();
@@ -173,14 +376,22 @@ export class RealFootballProvider implements IFootballDataProvider {
         const homeRoster = summary.rosters.find((r: any) => r.homeAway === 'home') || summary.rosters[0];
         const awayRoster = summary.rosters.find((r: any) => r.homeAway === 'away') || summary.rosters[1];
 
+        const homeTeamName = homeRoster.team?.displayName || matchMeta?.match.homeTeam.name || '';
+        const awayTeamName = awayRoster.team?.displayName || matchMeta?.match.awayTeam.name || '';
+
+        const [homeCoachInfo, awayCoachInfo] = await Promise.all([
+          this.resolveCoach(homeTeamName, homeRoster.coach?.[0]?.displayName),
+          this.resolveCoach(awayTeamName, awayRoster.coach?.[0]?.displayName),
+        ]);
+
         // 1. If official starting roster is already published in summary
         if (
           Array.isArray(homeRoster.roster) && homeRoster.roster.length >= 11 &&
           Array.isArray(awayRoster.roster) && awayRoster.roster.length >= 11
         ) {
           const [homeLineup, awayLineup] = await Promise.all([
-            this.parseRosterToLineup(homeRoster, true),
-            this.parseRosterToLineup(awayRoster, false),
+            this.parseRosterToLineup(homeRoster, true, homeCoachInfo.name, homeCoachInfo.image),
+            this.parseRosterToLineup(awayRoster, false, awayCoachInfo.name, awayCoachInfo.image),
           ]);
 
           if (homeLineup.startingXI.length === 11 && awayLineup.startingXI.length === 11) {
@@ -203,12 +414,9 @@ export class RealFootballProvider implements IFootballDataProvider {
           ]);
 
           if (homeAthletes.length >= 11 && awayAthletes.length >= 11) {
-            const homeCoach = homeRoster.coach?.[0]?.displayName || 'Head Coach';
-            const awayCoach = awayRoster.coach?.[0]?.displayName || 'Head Coach';
-
             const [homeLineup, awayLineup] = await Promise.all([
-              this.buildProjectedLineupFromRoster(homeAthletes, true, homeCoach),
-              this.buildProjectedLineupFromRoster(awayAthletes, false, awayCoach),
+              this.buildProjectedLineupFromRoster(homeAthletes, true, homeCoachInfo.name, homeCoachInfo.image),
+              this.buildProjectedLineupFromRoster(awayAthletes, false, awayCoachInfo.name, awayCoachInfo.image),
             ]);
 
             return {
@@ -245,7 +453,7 @@ export class RealFootballProvider implements IFootballDataProvider {
     }
   }
 
-  private async buildProjectedLineupFromRoster(athletes: any[], isHome: boolean, coach: string = 'Head Coach'): Promise<TeamLineup> {
+  private async buildProjectedLineupFromRoster(athletes: any[], isHome: boolean, coach: string = 'Head Coach', coachImage?: string): Promise<TeamLineup> {
     const gks = athletes.filter((a) => a.position?.abbreviation === 'G' || a.position?.name?.toLowerCase().includes('goal'));
     const defs = athletes.filter((a) => a.position?.abbreviation === 'D' || a.position?.name?.toLowerCase().includes('defend'));
     const mids = athletes.filter((a) => a.position?.abbreviation === 'M' || a.position?.name?.toLowerCase().includes('midfield'));
@@ -344,6 +552,7 @@ export class RealFootballProvider implements IFootballDataProvider {
       formation: '4-3-3',
       confirmed: false,
       coach,
+      coachImage,
       startingXI,
       substitutes,
     };
@@ -570,9 +779,9 @@ export class RealFootballProvider implements IFootballDataProvider {
     return matches;
   }
 
-  private async parseRosterToLineup(rosterData: any, isHome: boolean): Promise<TeamLineup> {
+  private async parseRosterToLineup(rosterData: any, isHome: boolean, coachName?: string, coachImage?: string): Promise<TeamLineup> {
     const formation = rosterData?.formation || '4-3-3';
-    const coach = rosterData?.coach?.[0]?.displayName || (isHome ? 'Head Coach' : 'Visiting Coach');
+    const coach = coachName || rosterData?.coach?.[0]?.displayName || (isHome ? 'Head Coach' : 'Visiting Coach');
     const athletes = Array.isArray(rosterData?.roster) ? rosterData.roster : [];
 
     const startingAthletes = athletes.filter((a: any) => a.starter).slice(0, 11);
@@ -644,6 +853,7 @@ export class RealFootballProvider implements IFootballDataProvider {
       formation,
       confirmed: startingAthletes.length === 11,
       coach,
+      coachImage,
       startingXI,
       substitutes,
     };

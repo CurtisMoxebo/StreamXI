@@ -15,6 +15,7 @@ export const TeamLineupSchema = z.object({
   formation: z.string(), // e.g. "4-3-3", "4-2-3-1"
   confirmed: z.boolean(), // true if official, false if potential/projected
   coach: z.string(),
+  coachImage: z.string().optional(),
   startingXI: z.array(PitchPlayerSchema).length(11),
   substitutes: z.array(PitchPlayerSchema),
 });

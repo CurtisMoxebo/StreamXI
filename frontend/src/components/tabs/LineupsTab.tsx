@@ -119,9 +119,6 @@ export const LineupsTab: React.FC<LineupsTabProps> = ({ matchId }) => {
       {/* FOOTBALL PITCH VISUALIZATION */}
       <div className="relative aspect-[16/10] w-full max-w-4xl mx-auto rounded-2xl overflow-hidden border-2 border-emerald-600/40 shadow-2xl bg-gradient-to-b from-emerald-900 via-emerald-950 to-emerald-900 select-none">
         
-        {/* Pitch Turf Pattern Lines */}
-        <div className="absolute inset-0 opacity-15 bg-[repeating-linear-gradient(90deg,transparent,transparent_60px,#ffffff_60px,#ffffff_61px)]" />
-
         {/* Pitch Markings SVG */}
         <svg className="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
           {/* Outer Boundary */}
@@ -178,9 +175,16 @@ export const LineupsTab: React.FC<LineupsTabProps> = ({ matchId }) => {
                   {player.number}
                 </div>
               </div>
-              <span className="text-[8px] sm:text-[10px] font-bold text-white bg-surface-900/95 px-1.5 py-0.5 rounded-md mt-1 shadow-md whitespace-nowrap border border-white/10 max-w-[85px] sm:max-w-[110px] truncate text-center">
-                {displayName}
-              </span>
+              <div className="flex flex-col items-center mt-1">
+                <span className="text-[8px] sm:text-[10px] font-bold text-white bg-surface-900/95 px-1.5 py-0.5 rounded-md shadow-md whitespace-nowrap border border-white/10 max-w-[85px] sm:max-w-[110px] truncate text-center leading-tight">
+                  {displayName}
+                </span>
+                {player.position && (
+                  <span className="text-[7px] sm:text-[8px] font-extrabold text-brand-300 bg-surface-950/80 px-1 py-0.2 rounded mt-0.5 uppercase tracking-wider border border-brand-400/20">
+                    {player.position}
+                  </span>
+                )}
+              </div>
             </div>
           );
         })}
@@ -218,9 +222,16 @@ export const LineupsTab: React.FC<LineupsTabProps> = ({ matchId }) => {
                   {player.number}
                 </div>
               </div>
-              <span className="text-[8px] sm:text-[10px] font-bold text-white bg-surface-900/95 px-1.5 py-0.5 rounded-md mt-1 shadow-md whitespace-nowrap border border-white/10 max-w-[85px] sm:max-w-[110px] truncate text-center">
-                {displayName}
-              </span>
+              <div className="flex flex-col items-center mt-1">
+                <span className="text-[8px] sm:text-[10px] font-bold text-white bg-surface-900/95 px-1.5 py-0.5 rounded-md shadow-md whitespace-nowrap border border-white/10 max-w-[85px] sm:max-w-[110px] truncate text-center leading-tight">
+                  {displayName}
+                </span>
+                {player.position && (
+                  <span className="text-[7px] sm:text-[8px] font-extrabold text-accent-cyan bg-surface-950/80 px-1 py-0.2 rounded mt-0.5 uppercase tracking-wider border border-accent-cyan/20">
+                    {player.position}
+                  </span>
+                )}
+              </div>
             </div>
           );
         })}
@@ -231,10 +242,29 @@ export const LineupsTab: React.FC<LineupsTabProps> = ({ matchId }) => {
         
         {/* Home Team Coach & Subs */}
         <div className="bg-surface-800/80 rounded-xl border border-surface-700/80 p-4 space-y-3">
-          <div className="flex items-center justify-between border-b border-surface-700 pb-2">
-            <div>
-              <span className="text-xs text-slate-400 uppercase font-semibold">{t('headCoach')}</span>
-              <p className="text-sm font-bold text-white">{home.coach}</p>
+          <div className="flex items-center justify-between border-b border-surface-700 pb-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-brand-400 bg-surface-900 flex-shrink-0 flex items-center justify-center shadow-md">
+                {home.coachImage ? (
+                  <img
+                    src={home.coachImage}
+                    alt={home.coach}
+                    className="w-full h-full object-cover object-top"
+                    onError={(e) => {
+                      (e.target as HTMLElement).style.display = 'none';
+                      const fallback = (e.target as HTMLElement).parentElement?.querySelector('.coach-fallback');
+                      if (fallback) (fallback as HTMLElement).classList.remove('hidden');
+                    }}
+                  />
+                ) : null}
+                <div className={`coach-fallback w-full h-full bg-brand-500/20 text-brand-400 font-bold text-xs items-center justify-center ${home.coachImage ? 'hidden' : 'flex'}`}>
+                  {home.coach ? home.coach.charAt(0) : 'C'}
+                </div>
+              </div>
+              <div>
+                <span className="text-xs text-slate-400 uppercase font-semibold">{t('headCoach')}</span>
+                <p className="text-sm font-bold text-white">{home.coach || 'Head Coach'}</p>
+              </div>
             </div>
             <span className="text-xs font-bold text-brand-400 bg-brand-500/10 px-2 py-0.5 rounded border border-brand-500/20">
               Home
@@ -268,7 +298,12 @@ export const LineupsTab: React.FC<LineupsTabProps> = ({ matchId }) => {
                         {sub.number}
                       </div>
                     </div>
-                    <span className="text-slate-200 truncate">{subDisplayName}</span>
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-slate-200 truncate leading-tight">{subDisplayName}</span>
+                      {sub.position && (
+                        <span className="text-[9px] font-bold text-brand-400/80 uppercase tracking-wide">{sub.position}</span>
+                      )}
+                    </div>
                   </div>
                 );
               })}
@@ -278,10 +313,29 @@ export const LineupsTab: React.FC<LineupsTabProps> = ({ matchId }) => {
 
         {/* Away Team Coach & Subs */}
         <div className="bg-surface-800/80 rounded-xl border border-surface-700/80 p-4 space-y-3">
-          <div className="flex items-center justify-between border-b border-surface-700 pb-2">
-            <div>
-              <span className="text-xs text-slate-400 uppercase font-semibold">{t('headCoach')}</span>
-              <p className="text-sm font-bold text-white">{away.coach}</p>
+          <div className="flex items-center justify-between border-b border-surface-700 pb-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-accent-cyan bg-surface-900 flex-shrink-0 flex items-center justify-center shadow-md">
+                {away.coachImage ? (
+                  <img
+                    src={away.coachImage}
+                    alt={away.coach}
+                    className="w-full h-full object-cover object-top"
+                    onError={(e) => {
+                      (e.target as HTMLElement).style.display = 'none';
+                      const fallback = (e.target as HTMLElement).parentElement?.querySelector('.coach-fallback');
+                      if (fallback) (fallback as HTMLElement).classList.remove('hidden');
+                    }}
+                  />
+                ) : null}
+                <div className={`coach-fallback w-full h-full bg-cyan-500/20 text-accent-cyan font-bold text-xs items-center justify-center ${away.coachImage ? 'hidden' : 'flex'}`}>
+                  {away.coach ? away.coach.charAt(0) : 'C'}
+                </div>
+              </div>
+              <div>
+                <span className="text-xs text-slate-400 uppercase font-semibold">{t('headCoach')}</span>
+                <p className="text-sm font-bold text-white">{away.coach || 'Head Coach'}</p>
+              </div>
             </div>
             <span className="text-xs font-bold text-accent-cyan bg-accent-cyan/10 px-2 py-0.5 rounded border border-accent-cyan/20">
               Away
@@ -315,7 +369,12 @@ export const LineupsTab: React.FC<LineupsTabProps> = ({ matchId }) => {
                         {sub.number}
                       </div>
                     </div>
-                    <span className="text-slate-200 truncate">{subDisplayName}</span>
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-slate-200 truncate leading-tight">{subDisplayName}</span>
+                      {sub.position && (
+                        <span className="text-[9px] font-bold text-accent-cyan/80 uppercase tracking-wide">{sub.position}</span>
+                      )}
+                    </div>
                   </div>
                 );
               })}

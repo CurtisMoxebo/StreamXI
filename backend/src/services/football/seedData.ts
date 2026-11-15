@@ -252,6 +252,7 @@ export function getSeedLineups(matchId: string): MatchLineups {
       formation: '4-3-3',
       confirmed: isConfirmed,
       coach: 'Carlo Ancelotti',
+      coachImage: 'https://images.fotmob.com/image_resources/playerimages/78619.png',
       startingXI: generatePitchStarters('h', true),
       substitutes: [
         { id: 'sub-h-1', name: 'Andriy Lunin', number: 13, position: 'GK', image: 'https://images.fotmob.com/image_resources/playerimages/800882.png', gridX: 0, gridY: 0 },
@@ -265,6 +266,7 @@ export function getSeedLineups(matchId: string): MatchLineups {
       formation: '4-3-3',
       confirmed: isConfirmed,
       coach: 'Pep Guardiola',
+      coachImage: 'https://images.fotmob.com/image_resources/playerimages/41636.png',
       startingXI: generatePitchStarters('a', false),
       substitutes: [
         { id: 'sub-a-1', name: 'Stefan Ortega', number: 18, position: 'GK', image: 'https://images.fotmob.com/image_resources/playerimages/276729.png', gridX: 0, gridY: 0 },
