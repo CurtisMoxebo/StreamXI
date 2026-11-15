@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import request from 'supertest';
-import { createApp } from '../app.js';
+import { createApp } from '../src/app.js';
 
 describe('Step 3: Football Matches API Integration Tests', () => {
   const app = createApp();

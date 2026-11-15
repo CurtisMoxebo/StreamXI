@@ -2,16 +2,16 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
-import '../i18n/index.js';
-import { MatchDetailPage } from './MatchDetailPage.js';
-import { LineupsTab } from '../components/tabs/LineupsTab.js';
-import { StatsTab } from '../components/tabs/StatsTab.js';
-import { AiInsightsTab } from '../components/tabs/AiInsightsTab.js';
-import { api } from '../api/client.js';
-import { Match, MatchLineups, UpcomingMatchStats, InGameMatchStats, AIPrediction, MatchStreamInfo } from '../types/index.js';
+import '../src/i18n/index.js';
+import { MatchDetailPage } from '../src/pages/MatchDetailPage.js';
+import { LineupsTab } from '../src/components/tabs/LineupsTab.js';
+import { StatsTab } from '../src/components/tabs/StatsTab.js';
+import { AiInsightsTab } from '../src/components/tabs/AiInsightsTab.js';
+import { api } from '../src/api/client.js';
+import { Match, MatchLineups, UpcomingMatchStats, InGameMatchStats, AIPrediction, MatchStreamInfo } from '../src/types/index.js';
 
 // Mock API client
-vi.mock('../api/client.js', () => ({
+vi.mock('../src/api/client.js', () => ({
   api: {
     getMatchById: vi.fn(),
     getMatchStreamInfo: vi.fn(),

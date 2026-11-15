@@ -2,8 +2,8 @@ import React from 'react';
 import { describe, it, expect } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import { Layout } from './Layout.js';
-import '../i18n/index.js';
+import { Layout } from '../src/components/Layout.js';
+import '../src/i18n/index.js';
 
 describe('Frontend Step 2: Global Layout & Navigation Tests', () => {
   it('renders Header with StreamXI logo and search bar', () => {

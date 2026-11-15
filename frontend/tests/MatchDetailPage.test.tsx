@@ -2,11 +2,11 @@ import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { MatchDetailPage } from './MatchDetailPage.js';
-import { api } from '../api/client.js';
-import '../i18n/index.js';
+import { MatchDetailPage } from '../src/pages/MatchDetailPage.js';
+import { api } from '../src/api/client.js';
+import '../src/i18n/index.js';
 
-vi.mock('../api/client.js', () => ({
+vi.mock('../src/api/client.js', () => ({
   api: {
     getMatchById: vi.fn(),
     getMatchStreamInfo: vi.fn(),

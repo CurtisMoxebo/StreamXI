@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import i18n, { detectBrowserLanguage, SUPPORTED_LANGUAGES, LANGUAGE_FLAGS } from './index.js';
+import i18n, { detectBrowserLanguage, SUPPORTED_LANGUAGES, LANGUAGE_FLAGS } from '../src/i18n/index.js';
 
 describe('Frontend Step 1: i18n Multilingual & Setup Tests', () => {
   beforeEach(async () => {

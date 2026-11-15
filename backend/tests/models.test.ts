@@ -6,7 +6,7 @@ import {
   InGameMatchStatsSchema,
   AIPredictionSchema,
   MatchStreamInfoSchema,
-} from './index.js';
+} from '../src/models/index.js';
 
 describe('Step 2: Core Data Models & Schema Validation', () => {
   it('validates a complete Match object', () => {

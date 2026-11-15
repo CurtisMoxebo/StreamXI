@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import request from 'supertest';
-import { createApp } from '../app.js';
-import { streamRelayManager } from '../services/streaming/StreamRelayManager.js';
+import { createApp } from '../src/app.js';
+import { streamRelayManager } from '../src/services/streaming/StreamRelayManager.js';
 
 describe('Step 5: Xtream IPTV Streaming & Multiplexed Relay Tests', () => {
   const app = createApp();
