@@ -1,5 +1,5 @@
 import { IFootballDataProvider } from './IFootballDataProvider.js';
-import { GeminiFootballProvider } from './GeminiFootballProvider.js';
+import { RealFootballProvider } from './RealFootballProvider.js';
 import { Competition, Match, MatchLineups, MatchStatsResponse } from '../../models/index.js';
 
 export interface GroupedCompetitionMatches {
@@ -11,7 +11,7 @@ export class FootballService {
   private provider: IFootballDataProvider;
 
   constructor(provider?: IFootballDataProvider) {
-    this.provider = provider || new GeminiFootballProvider();
+    this.provider = provider || new RealFootballProvider();
   }
 
   // Switch or inject a different provider (e.g. external football API in the future)
