@@ -1,7 +1,7 @@
 import { app } from './app.js';
 import { config } from './config/env.js';
 
-const PORT = config.PORT;
+const PORT = config.BACKEND_PORT || config.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`⚽ StreamXI Backend running in [${config.NODE_ENV}] mode on http://localhost:${PORT}`);
