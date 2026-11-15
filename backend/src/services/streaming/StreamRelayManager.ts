@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import axios from 'axios';
 import { config } from '../../config/env.js';
+import { logger, getClientIp } from '../../utils/logger.js';
 
 interface ActiveStream {
   channelId: string;
@@ -19,6 +20,9 @@ export class StreamRelayManager {
    * If the channel cannot be reached or fails, gracefully terminates with 502 Bad Gateway.
    */
   async handleClientStream(channelId: string, req: Request, res: Response): Promise<void> {
+    const clientIp = getClientIp(req);
+    logger.info(`[StreamRelay] Client connected: [IP: ${clientIp}] -> Channel: ${channelId}`);
+
     let stream = this.activeStreams.get(channelId);
 
     // If an upstream stream is already actively relaying, attach this client to it
@@ -31,6 +35,7 @@ export class StreamRelayManager {
       stream.clients.add(res);
 
       req.on('close', () => {
+        logger.info(`[StreamRelay] Client disconnected: [IP: ${clientIp}] -> Channel: ${channelId} (Relayed: ${stream?.bytesRelayed || 0} bytes)`);
         const currentStream = this.activeStreams.get(channelId);
         if (currentStream) {
           currentStream.clients.delete(res);
@@ -68,6 +73,8 @@ export class StreamRelayManager {
       this.activeStreams.set(channelId, stream);
       stream.clients.add(res);
 
+      logger.info(`[StreamRelay] Upstream IPTV broadcast established for channel: ${channelId}`);
+
       const contentType = response.headers['content-type'] ? String(response.headers['content-type']) : 'video/mp2t';
       res.setHeader('Content-Type', contentType);
       res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
@@ -88,11 +95,12 @@ export class StreamRelayManager {
       });
 
       response.data.on('error', (err: any) => {
-        console.error(`[StreamRelay] Stream error for ${channelId}:`, err);
+        logger.error(`[StreamRelay] Stream error for channel ${channelId}:`, err);
         this.cleanupStream(channelId);
       });
 
       req.on('close', () => {
+        logger.info(`[StreamRelay] Client disconnected: [IP: ${clientIp}] -> Channel: ${channelId} (Relayed: ${stream?.bytesRelayed || 0} bytes)`);
         const currentStream = this.activeStreams.get(channelId);
         if (currentStream) {
           currentStream.clients.delete(res);
@@ -102,7 +110,7 @@ export class StreamRelayManager {
         }
       });
     } catch (err: any) {
-      console.error(`[StreamRelayManager] Upstream IPTV connection failed for channel ${channelId}:`, err.message);
+      logger.error(`[StreamRelayManager] Upstream IPTV connection failed for channel ${channelId}:`, err.message);
       if (!res.headersSent && !res.writableEnded) {
         res.status(502).json({ error: `Upstream IPTV broadcast for channel ${channelId} unavailable.` });
       }

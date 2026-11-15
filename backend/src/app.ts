@@ -2,17 +2,25 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import { matchesRouter } from './routes/matches.js';
 import { streamsRouter } from './routes/streams.js';
+import { requestLogger } from './middleware/requestLogger.js';
+import { logger } from './utils/logger.js';
 
 export function createApp() {
   const app = express();
 
-  // Middleware
+  // Trust reverse proxy headers (X-Forwarded-For) for client IP detection
+  app.set('trust proxy', true);
+
+  // Core Middleware
   app.use(cors({
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   }));
   app.use(express.json());
+
+  // Backend Logging Middleware - logs method, URL, status, latency and client IP address
+  app.use(requestLogger);
 
   // Health check endpoint
   app.get('/api/health', (_req: Request, res: Response) => {
@@ -38,7 +46,7 @@ export function createApp() {
 
   // Global Error Handler
   app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-    console.error('[StreamXI Server Error]:', err);
+    logger.error('[StreamXI Server Error]:', err);
     res.status(500).json({
       error: 'Internal Server Error',
       message: process.env.NODE_ENV === 'production' ? 'An unexpected error occurred' : err.message,
