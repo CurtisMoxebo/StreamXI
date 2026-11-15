@@ -1,7 +1,7 @@
 import React from 'react';
 import { describe, it, expect } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, MemoryRouter } from 'react-router-dom';
 import { Layout } from '../src/components/Layout.js';
 import '../src/i18n/index.js';
 
@@ -76,5 +76,17 @@ describe('Frontend Step 2: Global Layout & Navigation Tests', () => {
     // Switch to French
     fireEvent.click(screen.getByText(/Français \(FR\)/i));
     expect(screen.getByText('FR')).toBeInTheDocument();
+  });
+
+  it('hides search bar on the match stream page', () => {
+    render(
+      <MemoryRouter initialEntries={['/match/ucl-rm-mci']}>
+        <Layout searchQuery="" onSearchChange={() => {}}>
+          <div>Match Stream Content</div>
+        </Layout>
+      </MemoryRouter>
+    );
+
+    expect(screen.queryByPlaceholderText(/Search teams/i)).not.toBeInTheDocument();
   });
 });

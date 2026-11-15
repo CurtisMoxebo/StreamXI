@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { LANGUAGE_FLAGS, SupportedLanguage, SUPPORTED_LANGUAGES } from '../i18n/index.js';
 
 interface HeaderProps {
@@ -13,6 +13,14 @@ export const Header: React.FC<HeaderProps> = ({ onOpenDrawer, searchQuery, onSea
   const { t, i18n } = useTranslation();
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const langMenuRef = useRef<HTMLDivElement>(null);
+
+  let isStreamPage = false;
+  try {
+    const location = useLocation();
+    isStreamPage = location.pathname.startsWith('/match/');
+  } catch {
+    isStreamPage = false;
+  }
 
   const currentLang = (i18n.language?.substring(0, 2) || 'en') as SupportedLanguage;
   const currentLangInfo = LANGUAGE_FLAGS[currentLang] || LANGUAGE_FLAGS.en;
@@ -71,34 +79,38 @@ export const Header: React.FC<HeaderProps> = ({ onOpenDrawer, searchQuery, onSea
           </Link>
         </div>
 
-        {/* Center Search Bar with Filter Effect */}
-        <div className="flex-1 max-w-xl mx-2 sm:mx-6">
-          <div className="relative group">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-brand-400 transition-colors">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
-              placeholder={t('searchPlaceholder')}
-              className="w-full pl-10 pr-10 py-2.5 bg-surface-850/80 border border-surface-700/80 rounded-xl text-sm placeholder-slate-400 text-slate-100 focus:outline-none focus:border-brand-500/80 focus:ring-2 focus:ring-brand-500/20 transition-all shadow-inner"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => onSearchChange('')}
-                aria-label="Clear search"
-                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-white"
-              >
+        {/* Center Search Bar with Filter Effect (hidden on stream page) */}
+        {!isStreamPage ? (
+          <div className="flex-1 max-w-xl mx-2 sm:mx-6">
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-brand-400 transition-colors">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-              </button>
-            )}
+              </div>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => onSearchChange(e.target.value)}
+                placeholder={t('searchPlaceholder')}
+                className="w-full pl-10 pr-10 py-2.5 bg-surface-850/80 border border-surface-700/80 rounded-xl text-sm placeholder-slate-400 text-slate-100 focus:outline-none focus:border-brand-500/80 focus:ring-2 focus:ring-brand-500/20 transition-all shadow-inner"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => onSearchChange('')}
+                  aria-label="Clear search"
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-white"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="flex-1" />
+        )}
 
         {/* Right Header Controls: Multilingual Selector with Flags */}
         <div className="flex items-center gap-3">
