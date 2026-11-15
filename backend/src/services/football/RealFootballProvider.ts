@@ -530,10 +530,10 @@ export class RealFootballProvider implements IFootballDataProvider {
 
     // Coordinates mapping
     const mapCoordinates = (idx: number, isH: boolean) => {
-      const gkX = isH ? 12 : 88;
-      const defX = isH ? 25 : 75;
-      const midX = isH ? 37 : 63;
-      const attX = isH ? 47 : 53;
+      const gkX = isH ? 10 : 90;
+      const defX = isH ? 21 : 79;
+      const midX = isH ? 31 : 69;
+      const attX = isH ? 41 : 59;
 
       if (idx === 0) return { gridX: gkX, gridY: 50 };
       if (idx <= 4) {
@@ -829,10 +829,10 @@ export class RealFootballProvider implements IFootballDataProvider {
 
     // Coordinate mapping helper for horizontal pitch (Home left 0-50%, Away right 50-100%)
     const mapCoordinates = (idx: number, total: number, isH: boolean): { gridX: number; gridY: number } => {
-      const gkX = isH ? 12 : 88;
-      const defX = isH ? 25 : 75;
-      const midX = isH ? 37 : 63;
-      const attX = isH ? 47 : 53;
+      const gkX = isH ? 10 : 90;
+      const defX = isH ? 21 : 79;
+      const midX = isH ? 31 : 69;
+      const attX = isH ? 41 : 59;
 
       if (idx === 0) {
         // Goalkeeper

@@ -222,10 +222,10 @@ const AWAY_STARTERS_POOL = [
 ];
 
 function generatePitchStarters(prefix: string, isHome: boolean) {
-  const gkX = isHome ? 12 : 88;
-  const defX = isHome ? 25 : 75;
-  const midX = isHome ? 38 : 62;
-  const attX = isHome ? 48 : 52;
+  const gkX = isHome ? 10 : 90;
+  const defX = isHome ? 21 : 79;
+  const midX = isHome ? 31 : 69;
+  const attX = isHome ? 41 : 59;
 
   const pool = isHome ? HOME_STARTERS_POOL : AWAY_STARTERS_POOL;
 

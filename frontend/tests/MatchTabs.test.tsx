@@ -180,11 +180,11 @@ describe('Match Detail Tabs & Lazy Loading', () => {
 
     expect(await screen.findByText('Carlo Ancelotti')).toBeDefined();
     expect(screen.getByText('Pep Guardiola')).toBeDefined();
-    expect(screen.getByText('1 Courtois')).toBeDefined();
-    expect(screen.getByText('7 V. Jr')).toBeDefined();
-    expect(screen.getByText('9 Haaland')).toBeDefined();
-    expect(screen.getByText('10 Modric')).toBeDefined();
-    expect(screen.getByText('17 D. Bruyne')).toBeDefined();
+    expect(screen.getAllByText('1 Courtois').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('7 V. Jr').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('9 Haaland').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('10 Modric').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('17 D. Bruyne').length).toBeGreaterThan(0);
   });
 
   it('formats player name as {number} {initial}. {last name}', () => {
@@ -230,7 +230,7 @@ describe('Match Detail Tabs & Lazy Loading', () => {
         /"Real Madrid leverages home advantage and rapid counter-attacks against Manchester City high press."/
       )
     ).toBeDefined();
-    expect(screen.getByText('gemini-3.5-flash-lite')).toBeDefined();
+    expect(screen.getByText('AI Analytics Pro')).toBeDefined();
   });
 
   it('enforces lazy-loading in MatchDetailPage: only lineups API called on initial render', async () => {

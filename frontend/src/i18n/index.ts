@@ -87,7 +87,7 @@ export const resources = {
       winDrawProbabilities: 'Win & Draw Probabilities',
       lowRiskPredictions: 'Low-Risk Predictions',
       highRiskPredictions: 'High-Risk Predictions',
-      aiTacticalSummary: 'Gemini Tactical Analysis',
+      aiTacticalSummary: 'AI Tactical Analysis',
       confidence: 'Confidence',
       
       // Footer
@@ -154,7 +154,7 @@ export const resources = {
       winDrawProbabilities: 'Probabilités de victoire et nul',
       lowRiskPredictions: 'Prédictions à faible risque',
       highRiskPredictions: 'Prédictions à haut risque',
-      aiTacticalSummary: 'Analyse tactique Gemini',
+      aiTacticalSummary: 'Analyse tactique IA',
       confidence: 'Confiance',
       
       copyright: '© 2026 StreamXI. Tous droits réservés.',
@@ -220,7 +220,7 @@ export const resources = {
       winDrawProbabilities: 'Probabilidades de victoria y empate',
       lowRiskPredictions: 'Apuestas de bajo riesgo',
       highRiskPredictions: 'Apuestas de alto riesgo',
-      aiTacticalSummary: 'Análisis táctico Gemini',
+      aiTacticalSummary: 'Análisis táctico IA',
       confidence: 'Confianza',
       
       copyright: '© 2026 StreamXI. Todos los derechos reservados.',

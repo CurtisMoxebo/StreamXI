@@ -43,7 +43,7 @@ export const AiInsightsTab: React.FC<AiInsightsTabProps> = ({ matchId }) => {
       <div className="py-16 text-center text-slate-400" data-testid="ai-tab-loading">
         <div className="w-9 h-9 border-2 border-brand-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
         <p className="text-xs font-medium text-slate-300">
-          Calculating Gemini 3.5 Flash-Lite tactical probabilities & predictions...
+          Calculating AI tactical probabilities & predictions...
         </p>
       </div>
     );
@@ -115,10 +115,10 @@ export const AiInsightsTab: React.FC<AiInsightsTabProps> = ({ matchId }) => {
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse" />
           <span className="text-xs font-semibold text-white">
-            Gemini AI Prediction Engine
+            AI Match Insights Engine
           </span>
           <span className="text-[10px] bg-brand-500/20 text-brand-300 px-2 py-0.5 rounded border border-brand-500/30 font-mono">
-            {model}
+            {model && !model.toLowerCase().includes('gemini') ? model : 'AI Analytics Pro'}
           </span>
         </div>
         <span className="text-[10px] text-slate-400">
@@ -195,7 +195,7 @@ export const AiInsightsTab: React.FC<AiInsightsTabProps> = ({ matchId }) => {
 
       </div>
 
-      {/* 3. One-paragraph Gemini AI Tactical Summary */}
+      {/* 3. One-paragraph AI Tactical Summary */}
       <div className="relative overflow-hidden rounded-xl border border-brand-500/40 bg-gradient-to-r from-surface-850 via-surface-800 to-surface-850 p-4 sm:p-5 shadow-lg">
         <div className="flex items-center gap-2 mb-2 text-brand-400">
           <svg className="w-5 h-5 animate-pulse" fill="currentColor" viewBox="0 0 20 20">

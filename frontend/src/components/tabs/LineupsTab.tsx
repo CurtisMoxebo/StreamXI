@@ -7,6 +7,8 @@ interface LineupsTabProps {
   matchId: string;
 }
 
+export const DEFAULT_PERSON_IMAGE = '/default-avatar.svg';
+
 export function getPlayerFaceUrl(player: PitchPlayer): string | undefined {
   if (player.image && player.image.startsWith('http')) {
     return player.image;
@@ -109,6 +111,101 @@ export const LineupsTab: React.FC<LineupsTabProps> = ({ matchId }) => {
 
   const { home, away } = lineups;
 
+  // Helper to render a player marker on the pitch (handles horizontal and vertical mapping)
+  const renderPlayerNode = (
+    player: PitchPlayer,
+    index: number,
+    isHome: boolean,
+    isVertical: boolean = false
+  ) => {
+    const displayName = formatPlayerDisplayName(player.name, player.number);
+    const faceUrl = getPlayerFaceUrl(player) || DEFAULT_PERSON_IMAGE;
+    const posCode = formatPositionCode(player.position, index);
+
+    // On vertical pitch: vertical coordinate Y = (100 - gridX)%, horizontal lateral coordinate X = gridY%
+    const left = isVertical ? `${player.gridY}%` : `${player.gridX}%`;
+    const top = isVertical ? `${100 - player.gridX}%` : `${player.gridY}%`;
+
+    return (
+      <div
+        key={`${player.id}-${isVertical ? 'v' : 'h'}`}
+        style={{ left, top }}
+        className="absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group cursor-pointer z-10"
+        title={`${player.name} (#${player.number}) - ${posCode}`}
+      >
+        <div
+          className={`w-8 h-8 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full bg-surface-900 border-2 ${
+            isHome ? 'border-brand-400' : 'border-blue-400'
+          } overflow-hidden shadow-lg group-hover:scale-110 group-hover:border-white transition-all flex items-center justify-center`}
+        >
+          <img
+            src={faceUrl}
+            alt={player.name}
+            className="w-full h-full object-cover object-top"
+            loading="lazy"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              if (!target.src.includes(DEFAULT_PERSON_IMAGE)) {
+                target.src = DEFAULT_PERSON_IMAGE;
+              }
+            }}
+          />
+        </div>
+        <div className="flex flex-col items-center mt-0.5 sm:mt-1">
+          <span className="text-[7px] sm:text-[9px] md:text-[10px] font-bold text-white bg-surface-900/95 px-1 sm:px-1.5 py-0.5 rounded shadow-md whitespace-nowrap border border-white/10 max-w-[75px] sm:max-w-[95px] md:max-w-[110px] truncate text-center leading-tight">
+            {displayName}
+          </span>
+          <span
+            className={`text-[6px] sm:text-[7px] md:text-[8px] font-extrabold ${
+              isHome ? 'text-brand-300' : 'text-blue-400'
+            } bg-surface-950/80 px-1.5 py-0.5 rounded mt-0.5 uppercase tracking-wider`}
+          >
+            {posCode}
+          </span>
+        </div>
+      </div>
+    );
+  };
+
+  // Helper for substitute item
+  const renderSubstituteItem = (sub: PitchPlayer, index: number, isHome: boolean) => {
+    const subDisplayName = formatPlayerDisplayName(sub.name, sub.number);
+    const faceUrl = getPlayerFaceUrl(sub) || DEFAULT_PERSON_IMAGE;
+    const posCode = formatPositionCode(sub.position, undefined, index);
+
+    return (
+      <div key={sub.id} className="flex items-center gap-2 p-1.5 rounded-lg bg-surface-850 border border-surface-750">
+        <div
+          className={`w-7 h-7 rounded-full overflow-hidden border ${
+            isHome ? 'border-brand-400/50' : 'border-blue-400/50'
+          } bg-surface-800 flex-shrink-0 flex items-center justify-center`}
+        >
+          <img
+            src={faceUrl}
+            alt={sub.name}
+            className="w-full h-full object-cover object-top"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              if (!target.src.includes(DEFAULT_PERSON_IMAGE)) {
+                target.src = DEFAULT_PERSON_IMAGE;
+              }
+            }}
+          />
+        </div>
+        <div className="flex flex-col min-w-0">
+          <span className="text-slate-200 truncate leading-tight text-xs">{subDisplayName}</span>
+          <span
+            className={`text-[9px] font-bold ${
+              isHome ? 'text-brand-400/80' : 'text-blue-400/90'
+            } uppercase tracking-wide`}
+          >
+            {posCode}
+          </span>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6" data-testid="lineups-tab">
       {/* Formation & Confirmation Status Header */}
@@ -131,7 +228,7 @@ export const LineupsTab: React.FC<LineupsTabProps> = ({ matchId }) => {
           <span
             className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
               away.confirmed
-                ? 'bg-brand-500/20 text-brand-400 border border-brand-500/30'
+                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
                 : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
             }`}
           >
@@ -140,121 +237,72 @@ export const LineupsTab: React.FC<LineupsTabProps> = ({ matchId }) => {
         </div>
       </div>
 
-      {/* FOOTBALL PITCH VISUALIZATION */}
-      <div className="relative aspect-[16/10] w-full max-w-4xl mx-auto rounded-2xl overflow-hidden border-2 border-emerald-600/40 shadow-2xl bg-gradient-to-b from-emerald-900 via-emerald-950 to-emerald-900 select-none">
-        
-        {/* Pitch Markings SVG */}
-        <svg className="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
-          {/* Outer Boundary */}
-          <rect x="4%" y="4%" width="92%" height="92%" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
-          
-          {/* Halfway Line */}
-          <line x1="50%" y1="4%" x2="50%" y2="96%" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
-          
-          {/* Center Circle */}
-          <circle cx="50%" cy="50%" r="10%" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
-          <circle cx="50%" cy="50%" r="4" fill="rgba(255,255,255,0.5)" />
+      {/* MOBILE VERTICAL PITCH VISUALIZATION (Visible on screens < md) */}
+      <div className="block md:hidden">
+        <div className="relative aspect-[9/13] w-full max-w-sm mx-auto rounded-2xl overflow-hidden border-2 border-emerald-600/40 shadow-2xl bg-gradient-to-b from-emerald-900 via-emerald-950 to-emerald-900 select-none">
+          {/* Vertical Pitch Markings SVG */}
+          <svg className="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+            {/* Outer Boundary */}
+            <rect x="4%" y="4%" width="92%" height="92%" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
+            
+            {/* Halfway Line (Horizontal on vertical field) */}
+            <line x1="4%" y1="50%" x2="96%" y2="50%" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
+            
+            {/* Center Circle */}
+            <circle cx="50%" cy="50%" r="13%" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
+            <circle cx="50%" cy="50%" r="3.5" fill="rgba(255,255,255,0.5)" />
 
-          {/* Left Penalty Area (Home) */}
-          <rect x="4%" y="24%" width="16%" height="52%" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
-          <rect x="4%" y="36%" width="6%" height="28%" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" />
-          <circle cx="15%" cy="50%" r="3" fill="rgba(255,255,255,0.5)" />
+            {/* Top Penalty Area (Away Team) */}
+            <rect x="20%" y="4%" width="60%" height="16%" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
+            <rect x="32%" y="4%" width="36%" height="6%" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" />
+            <circle cx="50%" cy="14%" r="3" fill="rgba(255,255,255,0.5)" />
 
-          {/* Right Penalty Area (Away) */}
-          <rect x="80%" y="24%" width="16%" height="52%" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
-          <rect x="90%" y="36%" width="6%" height="28%" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" />
-          <circle cx="85%" cy="50%" r="3" fill="rgba(255,255,255,0.5)" />
-        </svg>
+            {/* Bottom Penalty Area (Home Team) */}
+            <rect x="20%" y="80%" width="60%" height="16%" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
+            <rect x="32%" y="90%" width="36%" height="6%" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" />
+            <circle cx="50%" cy="86%" r="3" fill="rgba(255,255,255,0.5)" />
+          </svg>
 
-        {/* Starting XI Players - Home Team (Left Half) */}
-        {home.startingXI.map((player: PitchPlayer, i: number) => {
-          const displayName = formatPlayerDisplayName(player.name, player.number);
-          const faceUrl = getPlayerFaceUrl(player);
-          return (
-            <div
-              key={player.id}
-              style={{ left: `${player.gridX}%`, top: `${player.gridY}%` }}
-              className="absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group cursor-pointer z-10"
-              title={`${player.name} (#${player.number}) - ${formatPositionCode(player.position, i)}`}
-            >
-              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-surface-900 border-2 border-brand-400 overflow-hidden shadow-lg group-hover:scale-110 group-hover:border-white transition-all flex items-center justify-center">
-                {faceUrl ? (
-                  <img
-                    src={faceUrl}
-                    alt={player.name}
-                    className="w-full h-full object-cover object-top"
-                    loading="lazy"
-                    onError={(e) => {
-                      (e.target as HTMLElement).style.display = 'none';
-                      const fallback = (e.target as HTMLElement).parentElement?.querySelector('.player-fallback-badge');
-                      if (fallback) (fallback as HTMLElement).classList.remove('hidden');
-                    }}
-                  />
-                ) : null}
-                <div
-                  className={`player-fallback-badge w-full h-full bg-gradient-to-br from-brand-600 to-brand-800 text-white font-extrabold text-xs sm:text-sm items-center justify-center ${
-                    faceUrl ? 'hidden' : 'flex'
-                  }`}
-                >
-                  {player.number}
-                </div>
-              </div>
-              <div className="flex flex-col items-center mt-1">
-                <span className="text-[8px] sm:text-[10px] font-bold text-white bg-surface-900/95 px-1.5 py-0.5 rounded-md shadow-md whitespace-nowrap border border-white/10 max-w-[85px] sm:max-w-[110px] truncate text-center leading-tight">
-                  {displayName}
-                </span>
-                <span className="text-[7px] sm:text-[8px] font-extrabold text-brand-300 bg-surface-950/80 px-1 py-0.2 rounded mt-0.5 uppercase tracking-wider border border-brand-400/20">
-                  {formatPositionCode(player.position, i)}
-                </span>
-              </div>
-            </div>
-          );
-        })}
+          {/* Away Team Players on Mobile (Top Half) */}
+          {away.startingXI.map((player: PitchPlayer, i: number) => renderPlayerNode(player, i, false, true))}
 
-        {/* Starting XI Players - Away Team (Right Half) */}
-        {away.startingXI.map((player: PitchPlayer, i: number) => {
-          const displayName = formatPlayerDisplayName(player.name, player.number);
-          const faceUrl = getPlayerFaceUrl(player);
-          return (
-            <div
-              key={player.id}
-              style={{ left: `${player.gridX}%`, top: `${player.gridY}%` }}
-              className="absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group cursor-pointer z-10"
-              title={`${player.name} (#${player.number}) - ${formatPositionCode(player.position, i)}`}
-            >
-              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-surface-900 border-2 border-accent-cyan overflow-hidden shadow-lg group-hover:scale-110 group-hover:border-white transition-all flex items-center justify-center">
-                {faceUrl ? (
-                  <img
-                    src={faceUrl}
-                    alt={player.name}
-                    className="w-full h-full object-cover object-top"
-                    loading="lazy"
-                    onError={(e) => {
-                      (e.target as HTMLElement).style.display = 'none';
-                      const fallback = (e.target as HTMLElement).parentElement?.querySelector('.player-fallback-badge');
-                      if (fallback) (fallback as HTMLElement).classList.remove('hidden');
-                    }}
-                  />
-                ) : null}
-                <div
-                  className={`player-fallback-badge w-full h-full bg-gradient-to-br from-cyan-600 to-cyan-800 text-white font-extrabold text-xs sm:text-sm items-center justify-center ${
-                    faceUrl ? 'hidden' : 'flex'
-                  }`}
-                >
-                  {player.number}
-                </div>
-              </div>
-              <div className="flex flex-col items-center mt-1">
-                <span className="text-[8px] sm:text-[10px] font-bold text-white bg-surface-900/95 px-1.5 py-0.5 rounded-md shadow-md whitespace-nowrap border border-white/10 max-w-[85px] sm:max-w-[110px] truncate text-center leading-tight">
-                  {displayName}
-                </span>
-                <span className="text-[7px] sm:text-[8px] font-extrabold text-accent-cyan bg-surface-950/80 px-1 py-0.2 rounded mt-0.5 uppercase tracking-wider border border-accent-cyan/20">
-                  {formatPositionCode(player.position, i)}
-                </span>
-              </div>
-            </div>
-          );
-        })}
+          {/* Home Team Players on Mobile (Bottom Half) */}
+          {home.startingXI.map((player: PitchPlayer, i: number) => renderPlayerNode(player, i, true, true))}
+        </div>
+      </div>
+
+      {/* DESKTOP HORIZONTAL PITCH VISUALIZATION (Visible on screens >= md) */}
+      <div className="hidden md:block">
+        <div className="relative aspect-[16/10] w-full max-w-4xl mx-auto rounded-2xl overflow-hidden border-2 border-emerald-600/40 shadow-2xl bg-gradient-to-b from-emerald-900 via-emerald-950 to-emerald-900 select-none">
+          {/* Horizontal Pitch Markings SVG */}
+          <svg className="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+            {/* Outer Boundary */}
+            <rect x="4%" y="4%" width="92%" height="92%" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
+            
+            {/* Halfway Line */}
+            <line x1="50%" y1="4%" x2="50%" y2="96%" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
+            
+            {/* Center Circle */}
+            <circle cx="50%" cy="50%" r="10%" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
+            <circle cx="50%" cy="50%" r="4" fill="rgba(255,255,255,0.5)" />
+
+            {/* Left Penalty Area (Home) */}
+            <rect x="4%" y="24%" width="16%" height="52%" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
+            <rect x="4%" y="36%" width="6%" height="28%" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" />
+            <circle cx="15%" cy="50%" r="3" fill="rgba(255,255,255,0.5)" />
+
+            {/* Right Penalty Area (Away) */}
+            <rect x="80%" y="24%" width="16%" height="52%" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
+            <rect x="90%" y="36%" width="6%" height="28%" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" />
+            <circle cx="85%" cy="50%" r="3" fill="rgba(255,255,255,0.5)" />
+          </svg>
+
+          {/* Starting XI Players - Home Team (Left Half) */}
+          {home.startingXI.map((player: PitchPlayer, i: number) => renderPlayerNode(player, i, true, false))}
+
+          {/* Starting XI Players - Away Team (Right Half) */}
+          {away.startingXI.map((player: PitchPlayer, i: number) => renderPlayerNode(player, i, false, false))}
+        </div>
       </div>
 
       {/* COACHES & SUBSTITUTES SECTION */}
@@ -264,29 +312,25 @@ export const LineupsTab: React.FC<LineupsTabProps> = ({ matchId }) => {
         <div className="bg-surface-800/80 rounded-xl border border-surface-700/80 p-4 space-y-3">
           <div className="flex items-center justify-between border-b border-surface-700 pb-3">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-brand-400 bg-surface-900 flex-shrink-0 flex items-center justify-center shadow-md">
-                {home.coachImage ? (
-                  <img
-                    src={home.coachImage}
-                    alt={home.coach}
-                    className="w-full h-full object-cover object-top"
-                    onError={(e) => {
-                      (e.target as HTMLElement).style.display = 'none';
-                      const fallback = (e.target as HTMLElement).parentElement?.querySelector('.coach-fallback');
-                      if (fallback) (fallback as HTMLElement).classList.remove('hidden');
-                    }}
-                  />
-                ) : null}
-                <div className={`coach-fallback w-full h-full bg-brand-500/20 text-brand-400 font-bold text-xs items-center justify-center ${home.coachImage ? 'hidden' : 'flex'}`}>
-                  {home.coach ? home.coach.charAt(0) : 'C'}
-                </div>
+              <div className="w-11 h-11 rounded-full overflow-hidden border-2 border-brand-400 bg-surface-900 flex-shrink-0 flex items-center justify-center shadow-md">
+                <img
+                  src={home.coachImage || DEFAULT_PERSON_IMAGE}
+                  alt={home.coach}
+                  className="w-full h-full object-cover object-top"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    if (!target.src.includes(DEFAULT_PERSON_IMAGE)) {
+                      target.src = DEFAULT_PERSON_IMAGE;
+                    }
+                  }}
+                />
               </div>
               <div>
                 <span className="text-xs text-slate-400 uppercase font-semibold">{t('headCoach')}</span>
                 <p className="text-sm font-bold text-white">{home.coach || 'Head Coach'}</p>
               </div>
             </div>
-            <span className="text-xs font-bold text-brand-400 bg-brand-500/10 px-2 py-0.5 rounded border border-brand-500/20">
+            <span className="text-xs font-bold text-brand-400 bg-brand-500/10 px-2.5 py-0.5 rounded border border-brand-500/20">
               Home
             </span>
           </div>
@@ -296,37 +340,7 @@ export const LineupsTab: React.FC<LineupsTabProps> = ({ matchId }) => {
               {t('substitutes')} ({home.substitutes.length})
             </span>
             <div className="grid grid-cols-2 gap-2 text-xs">
-              {home.substitutes.map((sub: PitchPlayer, i: number) => {
-                const subDisplayName = formatPlayerDisplayName(sub.name, sub.number);
-                const faceUrl = getPlayerFaceUrl(sub);
-                return (
-                  <div key={sub.id} className="flex items-center gap-2 p-1.5 rounded-lg bg-surface-850 border border-surface-750">
-                    <div className="w-6 h-6 rounded-full overflow-hidden border border-brand-400/40 bg-surface-800 flex-shrink-0 flex items-center justify-center">
-                      {faceUrl ? (
-                        <img
-                          src={faceUrl}
-                          alt={sub.name}
-                          className="w-full h-full object-cover object-top"
-                          onError={(e) => {
-                            (e.target as HTMLElement).style.display = 'none';
-                            const fallback = (e.target as HTMLElement).parentElement?.querySelector('.sub-fallback-badge');
-                            if (fallback) (fallback as HTMLElement).classList.remove('hidden');
-                          }}
-                        />
-                      ) : null}
-                      <div className={`sub-fallback-badge w-full h-full bg-brand-500/20 text-brand-400 font-bold text-[10px] items-center justify-center ${faceUrl ? 'hidden' : 'flex'}`}>
-                        {sub.number}
-                      </div>
-                    </div>
-                    <div className="flex flex-col min-w-0">
-                      <span className="text-slate-200 truncate leading-tight">{subDisplayName}</span>
-                      <span className="text-[9px] font-bold text-brand-400/80 uppercase tracking-wide">
-                        {formatPositionCode(sub.position, undefined, i)}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
+              {home.substitutes.map((sub: PitchPlayer, i: number) => renderSubstituteItem(sub, i, true))}
             </div>
           </div>
         </div>
@@ -335,29 +349,25 @@ export const LineupsTab: React.FC<LineupsTabProps> = ({ matchId }) => {
         <div className="bg-surface-800/80 rounded-xl border border-surface-700/80 p-4 space-y-3">
           <div className="flex items-center justify-between border-b border-surface-700 pb-3">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-accent-cyan bg-surface-900 flex-shrink-0 flex items-center justify-center shadow-md">
-                {away.coachImage ? (
-                  <img
-                    src={away.coachImage}
-                    alt={away.coach}
-                    className="w-full h-full object-cover object-top"
-                    onError={(e) => {
-                      (e.target as HTMLElement).style.display = 'none';
-                      const fallback = (e.target as HTMLElement).parentElement?.querySelector('.coach-fallback');
-                      if (fallback) (fallback as HTMLElement).classList.remove('hidden');
-                    }}
-                  />
-                ) : null}
-                <div className={`coach-fallback w-full h-full bg-cyan-500/20 text-accent-cyan font-bold text-xs items-center justify-center ${away.coachImage ? 'hidden' : 'flex'}`}>
-                  {away.coach ? away.coach.charAt(0) : 'C'}
-                </div>
+              <div className="w-11 h-11 rounded-full overflow-hidden border-2 border-blue-400 bg-surface-900 flex-shrink-0 flex items-center justify-center shadow-md">
+                <img
+                  src={away.coachImage || DEFAULT_PERSON_IMAGE}
+                  alt={away.coach}
+                  className="w-full h-full object-cover object-top"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    if (!target.src.includes(DEFAULT_PERSON_IMAGE)) {
+                      target.src = DEFAULT_PERSON_IMAGE;
+                    }
+                  }}
+                />
               </div>
               <div>
                 <span className="text-xs text-slate-400 uppercase font-semibold">{t('headCoach')}</span>
                 <p className="text-sm font-bold text-white">{away.coach || 'Head Coach'}</p>
               </div>
             </div>
-            <span className="text-xs font-bold text-accent-cyan bg-accent-cyan/10 px-2 py-0.5 rounded border border-accent-cyan/20">
+            <span className="text-xs font-bold text-blue-400 bg-blue-500/10 px-2.5 py-0.5 rounded border border-blue-500/20">
               Away
             </span>
           </div>
@@ -367,37 +377,7 @@ export const LineupsTab: React.FC<LineupsTabProps> = ({ matchId }) => {
               {t('substitutes')} ({away.substitutes.length})
             </span>
             <div className="grid grid-cols-2 gap-2 text-xs">
-              {away.substitutes.map((sub: PitchPlayer, i: number) => {
-                const subDisplayName = formatPlayerDisplayName(sub.name, sub.number);
-                const faceUrl = getPlayerFaceUrl(sub);
-                return (
-                  <div key={sub.id} className="flex items-center gap-2 p-1.5 rounded-lg bg-surface-850 border border-surface-750">
-                    <div className="w-6 h-6 rounded-full overflow-hidden border border-accent-cyan/40 bg-surface-800 flex-shrink-0 flex items-center justify-center">
-                      {faceUrl ? (
-                        <img
-                          src={faceUrl}
-                          alt={sub.name}
-                          className="w-full h-full object-cover object-top"
-                          onError={(e) => {
-                            (e.target as HTMLElement).style.display = 'none';
-                            const fallback = (e.target as HTMLElement).parentElement?.querySelector('.sub-fallback-badge');
-                            if (fallback) (fallback as HTMLElement).classList.remove('hidden');
-                          }}
-                        />
-                      ) : null}
-                      <div className={`sub-fallback-badge w-full h-full bg-cyan-500/20 text-accent-cyan font-bold text-[10px] items-center justify-center ${faceUrl ? 'hidden' : 'flex'}`}>
-                        {sub.number}
-                      </div>
-                    </div>
-                    <div className="flex flex-col min-w-0">
-                      <span className="text-slate-200 truncate leading-tight">{subDisplayName}</span>
-                      <span className="text-[9px] font-bold text-accent-cyan/80 uppercase tracking-wide">
-                        {formatPositionCode(sub.position, undefined, i)}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
+              {away.substitutes.map((sub: PitchPlayer, i: number) => renderSubstituteItem(sub, i, false))}
             </div>
           </div>
         </div>
