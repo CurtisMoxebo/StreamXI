@@ -1,14 +1,31 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Layout } from './components/Layout.js';
+import { HomePage } from './pages/HomePage.js';
 
 export default function App() {
+  const [searchQuery, setSearchQuery] = useState('');
+
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<div className="p-8 text-center text-white">StreamXI Home</div>} />
-        <Route path="/match/:id" element={<div className="p-8 text-center text-white">StreamXI Match Detail</div>} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <Layout searchQuery={searchQuery} onSearchChange={setSearchQuery}>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <HomePage
+                searchQuery={searchQuery}
+                onResetSearch={() => setSearchQuery('')}
+              />
+            }
+          />
+          <Route
+            path="/match/:id"
+            element={<div className="p-8 text-center text-white">StreamXI Match Detail</div>}
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Layout>
     </BrowserRouter>
   );
 }
