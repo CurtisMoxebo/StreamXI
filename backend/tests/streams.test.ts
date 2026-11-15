@@ -7,26 +7,32 @@ describe('Step 5: Xtream IPTV Streaming & Multiplexed Relay Tests', () => {
   const app = createApp();
 
   describe('GET /api/matches/:id/stream-info', () => {
-    it('returns "ready" status and >= 3 channels per country for live match', async () => {
+    it('returns "ready" status and at most 3 AI-suggested channels per country for live match', async () => {
       const res = await request(app).get('/api/matches/ucl-rm-mci/stream-info');
       expect(res.status).toBe(200);
       expect(res.body.status).toBe('ready');
       expect(res.body.statusMessage).toBeDefined();
       expect(Array.isArray(res.body.channels)).toBe(true);
-      expect(res.body.channels.length).toBeGreaterThanOrEqual(9); // at least 3 from FR, 3 from EN, 3 from ES
+      expect(res.body.channels.length).toBeGreaterThanOrEqual(9);
 
-      // Check country flags
+      // Check country channels
       const frenchChannels = res.body.channels.filter((c: any) => c.country === 'France');
       const englishChannels = res.body.channels.filter((c: any) => c.country === 'England');
       const spanishChannels = res.body.channels.filter((c: any) => c.country === 'Spain');
 
-      expect(frenchChannels.length).toBeGreaterThanOrEqual(3);
-      expect(englishChannels.length).toBeGreaterThanOrEqual(3);
-      expect(spanishChannels.length).toBeGreaterThanOrEqual(3);
+      // AI returns at most 3 channels for each country
+      expect(frenchChannels.length).toBeLessThanOrEqual(3);
+      expect(frenchChannels.length).toBeGreaterThanOrEqual(1);
+      expect(englishChannels.length).toBeLessThanOrEqual(3);
+      expect(englishChannels.length).toBeGreaterThanOrEqual(1);
+      expect(spanishChannels.length).toBeLessThanOrEqual(3);
+      expect(spanishChannels.length).toBeGreaterThanOrEqual(1);
 
+      // Verify flags and stream URLs
       expect(frenchChannels[0].flag).toBe('🇫🇷');
       expect(englishChannels[0].flag).toBe('🇬🇧');
       expect(spanishChannels[0].flag).toBe('🇪🇸');
+      expect(frenchChannels[0].streamUrl).toMatch(/^\/api\/streams\/relay\/\d+/);
 
       // Check default channel selection
       expect(res.body.activeChannelId).toBe(res.body.channels[0].id);
