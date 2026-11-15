@@ -14,7 +14,7 @@ dotenv.config();
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  BACKEND_PORT: z.coerce.number().default(Number(process.env.PORT) || 5000),
+  BACKEND_PORT: z.coerce.number().default(Number(process.env.BACKEND_PORT) || 5000),
   PORT: z.coerce.number().default(Number(process.env.BACKEND_PORT) || 5000),
   DOMAIN: z.string().default('streamxi.moxebocurtis.com'),
   
