@@ -3,6 +3,7 @@ import { GoogleGenAI } from '@google/genai';
 import { config } from '../../config/env.js';
 import { Match, MatchStreamInfo, StreamChannel } from '../../models/index.js';
 import { footballService } from '../football/FootballService.js';
+import { logger } from '../../utils/logger.js';
 
 interface RawXtreamChannel {
   num: number;
@@ -184,8 +185,13 @@ export class XtreamService {
         this.cachedRawChannels = res.data;
         return res.data;
       }
-    } catch {
-      // Fallback to pre-configured catalog when Xtream server is in demo or offline mode
+    } catch (err: any) {
+      logger.error('[XtreamService] Error fetching live broadcast streams from upstream IPTV:', {
+        target: `${config.XTREAM_URL}/player_api.php?username=${config.XTREAM_USERNAME}&password=****&action=get_live_streams`,
+        error: err.message,
+        statusCode: err.response?.status,
+        errorCode: err.code,
+      });
     }
     return [];
   }

@@ -21,6 +21,13 @@ export class StreamRelayManager {
    */
   async handleClientStream(channelId: string, req: Request, res: Response): Promise<void> {
     const clientIp = getClientIp(req);
+
+    if (!channelId || channelId === 'undefined' || channelId.trim() === '') {
+      logger.error(`[StreamRelay] Broadcast creation rejected: missing or invalid channel ID "${channelId}" from [IP: ${clientIp}]`);
+      res.status(400).json({ error: 'Missing or invalid channel ID' });
+      return;
+    }
+
     logger.info(`[StreamRelay] Client connected: [IP: ${clientIp}] -> Channel: ${channelId}`);
 
     let stream = this.activeStreams.get(channelId);
@@ -48,8 +55,11 @@ export class StreamRelayManager {
     }
 
     // Try connecting to upstream Xtream IPTV
+    const safeUpstreamUrl = `${config.XTREAM_URL}/live/${config.XTREAM_USERNAME}/****/${channelId}.ts`;
     const upstreamUrl = `${config.XTREAM_URL}/live/${config.XTREAM_USERNAME}/${config.XTREAM_PASSWORD}/${channelId}.ts`;
     const abortController = new AbortController();
+
+    logger.info(`[StreamRelay] Initializing broadcast for channel: ${channelId} (Target: ${safeUpstreamUrl}, Requested by [IP: ${clientIp}])`);
 
     try {
       const response = await axios({
@@ -91,11 +101,16 @@ export class StreamRelayManager {
       });
 
       response.data.on('end', () => {
+        logger.info(`[StreamRelay] Upstream broadcast stream ended for channel: ${channelId}`);
         this.cleanupStream(channelId);
       });
 
       response.data.on('error', (err: any) => {
-        logger.error(`[StreamRelay] Stream error for channel ${channelId}:`, err);
+        logger.error(`[StreamRelay] Broadcast data stream error for channel ${channelId}:`, {
+          channelId,
+          error: err.message,
+          errorCode: err.code,
+        });
         this.cleanupStream(channelId);
       });
 
@@ -110,9 +125,21 @@ export class StreamRelayManager {
         }
       });
     } catch (err: any) {
-      logger.error(`[StreamRelayManager] Upstream IPTV connection failed for channel ${channelId}:`, err.message);
+      logger.error(`[StreamRelay] Failed to create broadcast for channel ${channelId}:`, {
+        clientIp,
+        channelId,
+        targetUrl: safeUpstreamUrl,
+        errorMessage: err.message,
+        statusCode: err.response?.status,
+        statusText: err.response?.statusText,
+        errorCode: err.code,
+      });
+
       if (!res.headersSent && !res.writableEnded) {
-        res.status(502).json({ error: `Upstream IPTV broadcast for channel ${channelId} unavailable.` });
+        res.status(502).json({
+          error: `Upstream IPTV broadcast for channel ${channelId} unavailable.`,
+          detail: err.message,
+        });
       }
       this.cleanupStream(channelId);
     }

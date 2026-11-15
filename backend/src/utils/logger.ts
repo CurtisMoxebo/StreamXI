@@ -93,11 +93,11 @@ export class Logger {
     }
   }
 
-  error(message: string, error?: any): void {
+  error(message: string, ...meta: any[]): void {
     const timestamp = this.formatTimestamp();
     const prefix = `${colors.dim}[${timestamp}]${colors.reset} ${colors.red}[ERROR]${colors.reset}`;
-    if (error) {
-      console.error(`${prefix} ${message}`, error);
+    if (meta.length > 0) {
+      console.error(`${prefix} ${message}`, ...meta);
     } else {
       console.error(`${prefix} ${message}`);
     }
