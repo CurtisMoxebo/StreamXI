@@ -48,7 +48,8 @@ export class XtreamService {
       };
     }
 
-    // Rule 2: Upcoming match in over 30 mins -> indicate upcoming
+    // Rule 2: Upcoming match in over 30 mins -> indicate upcoming (Temporarily bypassed for stream testing)
+    /*
     if (match.status === 'upcoming' && minutesToKickoff > 30) {
       return {
         matchId,
@@ -58,6 +59,7 @@ export class XtreamService {
         channels: [],
       };
     }
+    */
 
     // Rule 3: Live match or upcoming in <= 30 mins -> live streamer will load the game
     const channels = await this.discoverChannelsForMatch(match);
@@ -101,11 +103,44 @@ export class XtreamService {
     // Populate candidate lists
     for (const ch of rawChannels) {
       const lower = ch.name.toLowerCase();
-      if (lower.includes('canal+') || lower.includes('rmc') || lower.includes('bein') || lower.includes('france') || lower.includes('tf1')) {
+
+      // Exclude event-only and non-football content
+      if (
+        lower.includes('event only') ||
+        lower.includes('live-event') ||
+        lower.includes('cinema') ||
+        lower.includes('kids') ||
+        lower.includes('series') ||
+        lower.includes('darts') ||
+        lower.includes('f1') ||
+        lower.includes('golf') ||
+        lower.includes('cricket') ||
+        lower.includes('billiard') ||
+        lower.includes('cornhole') ||
+        lower.includes('boxing')
+      ) {
+        continue;
+      }
+
+      // France (FR prefix or France)
+      if (
+        (lower.startsWith('fr:') || lower.includes('france') || lower.includes('bein fr')) &&
+        (lower.includes('canal+') || lower.includes('rmc') || lower.includes('bein') || lower.includes('foot') || lower.includes('sport'))
+      ) {
         channelsByCountry.France?.list.push(ch);
-      } else if (lower.includes('tnt') || lower.includes('sky') || lower.includes('bbc') || lower.includes('itv') || lower.includes('premier')) {
+      }
+      // England (UK prefix or English football)
+      else if (
+        (lower.startsWith('uk:') || lower.startsWith('en:') || lower.includes('sky sports') || lower.includes('tnt sports')) &&
+        (lower.includes('main event') || lower.includes('premier') || lower.includes('football') || lower.includes('tnt sports 1') || lower.includes('tnt sports 2'))
+      ) {
         channelsByCountry.England?.list.push(ch);
-      } else if (lower.includes('movistar') || lower.includes('dazn') || lower.includes('laliga') || lower.includes('vamos') || lower.includes('cuatro')) {
+      }
+      // Spain (ES prefix or Movistar / DAZN LaLiga)
+      else if (
+        (lower.startsWith('es:') || lower.includes('movistar') || lower.includes('laliga') || lower.includes('dazn laliga')) &&
+        (lower.includes('laliga') || lower.includes('campeones') || lower.includes('futbol') || lower.includes('movistar'))
+      ) {
         channelsByCountry.Spain?.list.push(ch);
       }
     }
@@ -133,11 +168,20 @@ export class XtreamService {
     return selectedChannels;
   }
 
+  private cachedRawChannels: RawXtreamChannel[] | null = null;
+
   private async fetchRawXtreamChannels(): Promise<RawXtreamChannel[]> {
+    if (this.cachedRawChannels && this.cachedRawChannels.length > 0) {
+      return this.cachedRawChannels;
+    }
     try {
       const url = `${config.XTREAM_URL}/player_api.php?username=${config.XTREAM_USERNAME}&password=${config.XTREAM_PASSWORD}&action=get_live_streams`;
-      const res = await axios.get(url, { timeout: 3000 });
-      if (Array.isArray(res.data)) {
+      const res = await axios.get(url, {
+        headers: { 'User-Agent': 'IPTVSmartersPro' },
+        timeout: 10000,
+      });
+      if (Array.isArray(res.data) && res.data.length > 0) {
+        this.cachedRawChannels = res.data;
         return res.data;
       }
     } catch {
@@ -150,22 +194,22 @@ export class XtreamService {
     switch (country) {
       case 'France':
         return [
-          { stream_id: 101, name: 'Canal+ Foot HD', num: 1, category_id: '1' },
-          { stream_id: 102, name: 'RMC Sport 1 UHD', num: 2, category_id: '1' },
-          { stream_id: 103, name: 'BeIN Sports 1 France', num: 3, category_id: '1' },
+          { stream_id: 1562835, name: 'FR: CANAL+ FOOT ᴿᴬᵂ', num: 1, category_id: '1' },
+          { stream_id: 1562830, name: 'FR: BEIN SPORTS 1 ᴿᴬᵂ', num: 2, category_id: '1' },
+          { stream_id: 1562836, name: 'FR: CANAL+ SPORT 360 ᴿᴬᵂ', num: 3, category_id: '1' },
         ];
       case 'England':
         return [
-          { stream_id: 201, name: 'TNT Sports 1 UK', num: 1, category_id: '2' },
-          { stream_id: 202, name: 'Sky Sports Main Event', num: 2, category_id: '2' },
-          { stream_id: 203, name: 'BBC One HD Football', num: 3, category_id: '2' },
+          { stream_id: 1544239, name: '4K: SKY SPORTS MAIN EVENTS ᵁᴴᴰ ³⁸⁴⁰ᴾ', num: 1, category_id: '2' },
+          { stream_id: 1562535, name: 'UK: SKY SPORT MAIN EVENT ᴿᴬᵂ', num: 2, category_id: '2' },
+          { stream_id: 1562521, name: 'UK: SKY SPORT FOOTBALL ᴿᴬᵂ', num: 3, category_id: '2' },
         ];
       case 'Spain':
       default:
         return [
-          { stream_id: 301, name: 'Movistar Liga de Campeones', num: 1, category_id: '3' },
-          { stream_id: 302, name: 'DAZN LaLiga 1', num: 2, category_id: '3' },
-          { stream_id: 303, name: 'LaLiga TV Bar HD', num: 3, category_id: '3' },
+          { stream_id: 1577208, name: 'ES: M.LALIGA ᴴᴰᴿ ³⁸⁴⁰ᴾ', num: 1, category_id: '3' },
+          { stream_id: 1577207, name: 'ES: M.LALIGA DE CAMPEONES 1 ᴴᴰ', num: 2, category_id: '3' },
+          { stream_id: 1577206, name: 'ES: M.LALIGA DE CAMPEONES 2 ᴴᴰ', num: 3, category_id: '3' },
         ];
     }
   }

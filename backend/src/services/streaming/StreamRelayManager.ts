@@ -14,22 +14,50 @@ export class StreamRelayManager {
   private activeStreams = new Map<string, ActiveStream>();
 
   /**
-   * Attaches an Express response to a multiplexed stream relay for the given channel.
-   * If an upstream connection already exists for this channel, the client is attached to it.
-   * If not, a new upstream connection is created and subsequent clients share it.
+   * Attaches an Express response to a multiplexed stream relay for the given IPTV channel.
+   * Connects directly to upstream Xtream IPTV using the channel stream ID.
+   * If the channel cannot be reached or fails, gracefully terminates with 502 Bad Gateway.
    */
   async handleClientStream(channelId: string, req: Request, res: Response): Promise<void> {
-    // Set streaming headers
-    res.setHeader('Content-Type', 'video/mp2t');
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-
     let stream = this.activeStreams.get(channelId);
 
-    if (!stream) {
-      // Start new upstream relay
-      const abortController = new AbortController();
+    // If an upstream stream is already actively relaying, attach this client to it
+    if (stream) {
+      res.setHeader('Content-Type', 'video/mp2t');
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
+
+      stream.clients.add(res);
+
+      req.on('close', () => {
+        const currentStream = this.activeStreams.get(channelId);
+        if (currentStream) {
+          currentStream.clients.delete(res);
+          if (currentStream.clients.size === 0) {
+            this.cleanupStream(channelId);
+          }
+        }
+      });
+      return;
+    }
+
+    // Try connecting to upstream Xtream IPTV
+    const upstreamUrl = `${config.XTREAM_URL}/live/${config.XTREAM_USERNAME}/${config.XTREAM_PASSWORD}/${channelId}.ts`;
+    const abortController = new AbortController();
+
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: upstreamUrl,
+        responseType: 'stream',
+        headers: {
+          'User-Agent': 'IPTVSmartersPro',
+        },
+        signal: abortController.signal,
+        timeout: 10000,
+      });
+
       stream = {
         channelId,
         abortController,
@@ -38,44 +66,17 @@ export class StreamRelayManager {
         bytesRelayed: 0,
       };
       this.activeStreams.set(channelId, stream);
+      stream.clients.add(res);
 
-      this.startUpstreamConnection(stream).catch((err) => {
-        console.error(`[StreamRelayManager] Upstream error for channel ${channelId}:`, err);
-        this.cleanupStream(channelId);
-      });
-    }
-
-    // Attach client to active stream
-    stream.clients.add(res);
-
-    // Clean up when client disconnects
-    req.on('close', () => {
-      const currentStream = this.activeStreams.get(channelId);
-      if (currentStream) {
-        currentStream.clients.delete(res);
-        if (currentStream.clients.size === 0) {
-          // No more active listeners for this channel; terminate upstream
-          this.cleanupStream(channelId);
-        }
-      }
-    });
-  }
-
-  private async startUpstreamConnection(stream: ActiveStream) {
-    const upstreamUrl = `${config.XTREAM_URL}/live/${config.XTREAM_USERNAME}/${config.XTREAM_PASSWORD}/${stream.channelId}`;
-
-    try {
-      const response = await axios({
-        method: 'GET',
-        url: upstreamUrl,
-        responseType: 'stream',
-        signal: stream.abortController.signal,
-        timeout: 10000,
-      });
+      const contentType = response.headers['content-type'] ? String(response.headers['content-type']) : 'video/mp2t';
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
 
       response.data.on('data', (chunk: Buffer) => {
-        stream.bytesRelayed += chunk.length;
-        for (const client of stream.clients) {
+        if (stream) stream.bytesRelayed += chunk.length;
+        for (const client of stream!.clients) {
           if (!client.writableEnded) {
             client.write(chunk);
           }
@@ -83,22 +84,29 @@ export class StreamRelayManager {
       });
 
       response.data.on('end', () => {
-        this.cleanupStream(stream.channelId);
+        this.cleanupStream(channelId);
       });
 
       response.data.on('error', (err: any) => {
-        console.error(`[StreamRelay] Stream error for ${stream.channelId}:`, err);
-        this.cleanupStream(stream.channelId);
+        console.error(`[StreamRelay] Stream error for ${channelId}:`, err);
+        this.cleanupStream(channelId);
       });
-    } catch (err) {
-      // If upstream Xtream server is unreachable (e.g. dummy credentials in dev or network outage),
-      // gracefully end client responses without crashing the server.
-      for (const client of stream.clients) {
-        if (!client.writableEnded) {
-          client.status(502).end('Upstream IPTV relay unavailable.');
+
+      req.on('close', () => {
+        const currentStream = this.activeStreams.get(channelId);
+        if (currentStream) {
+          currentStream.clients.delete(res);
+          if (currentStream.clients.size === 0) {
+            this.cleanupStream(channelId);
+          }
         }
+      });
+    } catch (err: any) {
+      console.error(`[StreamRelayManager] Upstream IPTV connection failed for channel ${channelId}:`, err.message);
+      if (!res.headersSent && !res.writableEnded) {
+        res.status(502).json({ error: `Upstream IPTV broadcast for channel ${channelId} unavailable.` });
       }
-      this.cleanupStream(stream.channelId);
+      this.cleanupStream(channelId);
     }
   }
 
