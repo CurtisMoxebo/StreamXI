@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Match } from '../types/index.js';
-import { TeamBadge, getTeamFlag } from '../utils/flags.js';
+import { TeamFlag } from '../utils/flags.js';
 
 interface MatchCardProps {
   match: Match;
@@ -78,23 +78,18 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match }) => {
           {/* Home Team */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <TeamBadge team={match.homeTeam} size="md" />
-              <div className="flex items-center gap-2">
-                <span className="text-sm select-none mr-0.5" title={match.homeTeam.country}>
-                  {getTeamFlag(match.homeTeam)}
-                </span>
-                <span className="font-semibold text-sm sm:text-base text-slate-100">
-                  {match.homeTeam.name}
-                </span>
-                {homeRedCards.map((rc) => (
-                  <span
-                    key={rc.id}
-                    className="red-card-badge"
-                    title={`Red Card: ${rc.playerName} ${rc.minute}'`}
-                    aria-label="Red card"
-                  />
-                ))}
-              </div>
+              <TeamFlag team={match.homeTeam} className="w-5.5 h-3.5" />
+              <span className="font-semibold text-sm sm:text-base text-slate-100">
+                {match.homeTeam.name}
+              </span>
+              {homeRedCards.map((rc) => (
+                <span
+                  key={rc.id}
+                  className="red-card-badge"
+                  title={`Red Card: ${rc.playerName} ${rc.minute}'`}
+                  aria-label="Red card"
+                />
+              ))}
             </div>
 
             {/* Score */}
@@ -116,23 +111,18 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match }) => {
           {/* Away Team */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <TeamBadge team={match.awayTeam} size="md" />
-              <div className="flex items-center gap-2">
-                <span className="text-sm select-none mr-0.5" title={match.awayTeam.country}>
-                  {getTeamFlag(match.awayTeam)}
-                </span>
-                <span className="font-semibold text-sm sm:text-base text-slate-100">
-                  {match.awayTeam.name}
-                </span>
-                {awayRedCards.map((rc) => (
-                  <span
-                    key={rc.id}
-                    className="red-card-badge"
-                    title={`Red Card: ${rc.playerName} ${rc.minute}'`}
-                    aria-label="Red card"
-                  />
-                ))}
-              </div>
+              <TeamFlag team={match.awayTeam} className="w-5.5 h-3.5" />
+              <span className="font-semibold text-sm sm:text-base text-slate-100">
+                {match.awayTeam.name}
+              </span>
+              {awayRedCards.map((rc) => (
+                <span
+                  key={rc.id}
+                  className="red-card-badge"
+                  title={`Red Card: ${rc.playerName} ${rc.minute}'`}
+                  aria-label="Red card"
+                />
+              ))}
             </div>
 
             {/* Score */}

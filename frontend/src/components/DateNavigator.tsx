@@ -148,27 +148,6 @@ export const DateNavigator: React.FC<DateNavigatorProps> = ({
         </div>
 
       </div>
-
-      {/* Legend */}
-      <div className="mt-4 pt-3 border-t border-surface-750/70 flex flex-wrap items-center justify-between text-xs text-slate-400 gap-2">
-        <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1.5">
-            <span className="inline-block w-2.5 h-2.5 rounded-full bg-brand-400" />
-            <span>{t('legendLive')}</span>
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="inline-block w-2.5 h-2.5 rounded-full bg-slate-400" />
-            <span>{t('legendPast')}</span>
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="red-card-badge" />
-            <span>{t('legendRedCard')}</span>
-          </span>
-        </div>
-        <div className="text-slate-400 font-mono text-[11px]">
-          Schedule: <span className="text-slate-200 font-semibold">00:00 - 23:59</span>
-        </div>
-      </div>
     </div>
   );
 };

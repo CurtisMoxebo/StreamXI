@@ -5,6 +5,7 @@ import { DateNavigator, StatusFilter } from '../components/DateNavigator.js';
 import { MatchCard } from '../components/MatchCard.js';
 import { api } from '../api/client.js';
 import { Match, Competition } from '../types/index.js';
+import { getCompetitionLogo } from '../utils/flags.js';
 
 interface HomePageProps {
   searchQuery: string;
@@ -181,9 +182,11 @@ export const HomePage: React.FC<HomePageProps> = ({ searchQuery, onResetSearch }
                 {/* Competition Header */}
                 <div className="px-5 py-3.5 bg-gradient-to-r from-surface-800 via-surface-800/80 to-surface-850 border-b border-surface-750/80 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-blue-950/80 border border-blue-500/30 flex items-center justify-center text-blue-400 font-bold text-sm shadow-sm">
-                      {group.competition.logo || '⚽'}
-                    </div>
+                    <img
+                      src={getCompetitionLogo(group.competition)}
+                      alt={group.competition.name}
+                      className="w-8 h-8 object-contain flex-shrink-0"
+                    />
                     <div>
                       <h2 className="font-display font-bold text-base text-white tracking-wide">
                         {group.competition.name}

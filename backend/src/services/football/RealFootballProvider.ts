@@ -20,18 +20,19 @@ interface LeagueMeta {
   country: string;
   countryCode: string;
   order: number;
+  logo: string;
 }
 
 const TOP_LEAGUES: LeagueMeta[] = [
-  { code: 'uefa.champions', name: 'UEFA Champions League', slug: 'ucl', country: 'Europe', countryCode: 'EU', order: 1 },
-  { code: 'eng.1', name: 'Premier League', slug: 'epl', country: 'England', countryCode: 'GB', order: 2 },
-  { code: 'esp.1', name: 'La Liga', slug: 'laliga', country: 'Spain', countryCode: 'ES', order: 3 },
-  { code: 'ita.1', name: 'Serie A', slug: 'seriea', country: 'Italy', countryCode: 'IT', order: 4 },
-  { code: 'ger.1', name: 'Bundesliga', slug: 'bundesliga', country: 'Germany', countryCode: 'DE', order: 5 },
-  { code: 'fra.1', name: 'Ligue 1', slug: 'ligue1', country: 'France', countryCode: 'FR', order: 6 },
-  { code: 'uefa.nations', name: 'UEFA Nations League', slug: 'unl', country: 'Europe', countryCode: 'EU', order: 7 },
-  { code: 'uefa.europa', name: 'UEFA Europa League', slug: 'uel', country: 'Europe', countryCode: 'EU', order: 8 },
-  { code: 'fifa.friendly', name: 'International Friendlies', slug: 'friendlies', country: 'World', countryCode: 'WW', order: 9 },
+  { code: 'uefa.champions', name: 'UEFA Champions League', slug: 'ucl', country: 'Europe', countryCode: 'EU', order: 1, logo: 'https://a.espncdn.com/i/leaguelogos/soccer/500/2.png' },
+  { code: 'eng.1', name: 'Premier League', slug: 'epl', country: 'England', countryCode: 'GB', order: 2, logo: 'https://a.espncdn.com/i/leaguelogos/soccer/500/23.png' },
+  { code: 'esp.1', name: 'La Liga', slug: 'laliga', country: 'Spain', countryCode: 'ES', order: 3, logo: 'https://a.espncdn.com/i/leaguelogos/soccer/500/15.png' },
+  { code: 'ita.1', name: 'Serie A', slug: 'seriea', country: 'Italy', countryCode: 'IT', order: 4, logo: 'https://a.espncdn.com/i/leaguelogos/soccer/500/12.png' },
+  { code: 'ger.1', name: 'Bundesliga', slug: 'bundesliga', country: 'Germany', countryCode: 'DE', order: 5, logo: 'https://a.espncdn.com/i/leaguelogos/soccer/500/10.png' },
+  { code: 'fra.1', name: 'Ligue 1', slug: 'ligue1', country: 'France', countryCode: 'FR', order: 6, logo: 'https://a.espncdn.com/i/leaguelogos/soccer/500/9.png' },
+  { code: 'uefa.nations', name: 'UEFA Nations League', slug: 'unl', country: 'Europe', countryCode: 'EU', order: 7, logo: 'https://a.espncdn.com/i/leaguelogos/soccer/500/2395.png' },
+  { code: 'uefa.europa', name: 'UEFA Europa League', slug: 'uel', country: 'Europe', countryCode: 'EU', order: 8, logo: 'https://a.espncdn.com/i/leaguelogos/soccer/500/2310.png' },
+  { code: 'fifa.friendly', name: 'International Friendlies', slug: 'friendlies', country: 'World', countryCode: 'WW', order: 9, logo: 'https://a.espncdn.com/i/leaguelogos/soccer/500/53.png' },
 ];
 
 export class RealFootballProvider implements IFootballDataProvider {
@@ -314,6 +315,7 @@ export class RealFootballProvider implements IFootballDataProvider {
             country: league.country,
             countryCode: league.countryCode,
             order: league.order,
+            logo: league.logo,
           },
           homeTeam: {
             id: String(homeComp.team.id),

@@ -7,12 +7,13 @@ interface TopCompetitionsSidebarProps {
 }
 
 const TOP_COMPETITIONS = [
-  { name: 'UEFA Champions League', keyword: 'Champions League', icon: '⭐', liveCount: '2 Live' },
-  { name: 'Premier League', keyword: 'Premier League', icon: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', matchCount: '3' },
-  { name: 'La Liga EA Sports', keyword: 'La Liga', icon: '🇪🇸', matchCount: '2' },
-  { name: 'Serie A', keyword: 'Serie A', icon: '🇮🇹', matchCount: '1' },
-  { name: 'Bundesliga', keyword: 'Bundesliga', icon: '🇩🇪', matchCount: '1' },
-  { name: 'Ligue 1 McDonald\'s', keyword: 'Ligue 1', icon: '🇫🇷', matchCount: '1' },
+  { name: 'UEFA Champions League', keyword: 'Champions League', logo: 'https://a.espncdn.com/i/leaguelogos/soccer/500/2.png', liveCount: '2 Live' },
+  { name: 'UEFA Nations League', keyword: 'Nations League', logo: 'https://a.espncdn.com/i/leaguelogos/soccer/500/2395.png', liveCount: '8 Live' },
+  { name: 'Premier League', keyword: 'Premier League', logo: 'https://a.espncdn.com/i/leaguelogos/soccer/500/23.png', matchCount: '3' },
+  { name: 'La Liga EA Sports', keyword: 'La Liga', logo: 'https://a.espncdn.com/i/leaguelogos/soccer/500/15.png', matchCount: '2' },
+  { name: 'Serie A', keyword: 'Serie A', logo: 'https://a.espncdn.com/i/leaguelogos/soccer/500/12.png', matchCount: '1' },
+  { name: 'Bundesliga', keyword: 'Bundesliga', logo: 'https://a.espncdn.com/i/leaguelogos/soccer/500/10.png', matchCount: '1' },
+  { name: 'Ligue 1 McDonald\'s', keyword: 'Ligue 1', logo: 'https://a.espncdn.com/i/leaguelogos/soccer/500/9.png', matchCount: '1' },
 ];
 
 export const TopCompetitionsSidebar: React.FC<TopCompetitionsSidebarProps> = ({
@@ -46,7 +47,11 @@ export const TopCompetitionsSidebar: React.FC<TopCompetitionsSidebarProps> = ({
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
-                    <span className="text-sm">{comp.icon}</span>
+                    <img
+                      src={comp.logo}
+                      alt={comp.name}
+                      className="w-5 h-5 object-contain flex-shrink-0"
+                    />
                     <span className="font-medium text-slate-200 group-hover:text-white transition-colors">
                       {comp.name}
                     </span>

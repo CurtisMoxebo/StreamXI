@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Match } from '../types/index.js';
-import { TeamBadge, getTeamFlag } from '../utils/flags.js';
+import { TeamFlag, getCompetitionLogo } from '../utils/flags.js';
 
 interface MatchHeaderProps {
   match: Match;
@@ -32,9 +32,15 @@ export const MatchHeader: React.FC<MatchHeaderProps> = ({ match }) => {
           <span>{t('backToMatches')}</span>
         </Link>
 
+        {/* Competition Badge with Official Logo */}
         <div className="flex items-center gap-2">
-          <span className="text-xs px-2.5 py-1 rounded-full bg-surface-750 text-slate-300 font-semibold border border-surface-700">
-            {match.competition.logo || '🏆'} {match.competition.name}
+          <span className="text-xs px-3 py-1 rounded-full bg-surface-750 text-slate-200 font-semibold border border-surface-700 flex items-center gap-2 shadow-sm">
+            <img
+              src={getCompetitionLogo(match.competition)}
+              alt={match.competition.name}
+              className="w-5 h-5 object-contain flex-shrink-0"
+            />
+            <span>{match.competition.name}</span>
           </span>
         </div>
       </div>
@@ -43,22 +49,17 @@ export const MatchHeader: React.FC<MatchHeaderProps> = ({ match }) => {
       <div className="grid grid-cols-12 items-center gap-4 py-2">
         
         {/* Home Team */}
-        <div className="col-span-5 flex flex-col sm:flex-row items-center sm:justify-end gap-3 text-center sm:text-right">
-          <div>
-            <div className="flex items-center justify-center sm:justify-end gap-2">
-              <span className="text-lg sm:text-xl select-none" title={match.homeTeam.country}>
-                {getTeamFlag(match.homeTeam)}
-              </span>
-              <h2 className="font-display font-bold text-base sm:text-2xl text-white">
-                {match.homeTeam.name}
-              </h2>
-              {homeRedCards.map((rc) => (
-                <span key={rc.id} className="red-card-badge" title={`Red card: ${rc.playerName} ${rc.minute}'`} />
-              ))}
-            </div>
-            <p className="text-xs text-slate-400 font-mono mt-0.5">{match.homeTeam.country}</p>
+        <div className="col-span-5 flex flex-col items-center sm:items-end justify-center text-center sm:text-right">
+          <div className="flex items-center justify-center sm:justify-end gap-2.5">
+            <TeamFlag team={match.homeTeam} className="w-8 h-5.5" />
+            <h2 className="font-display font-bold text-base sm:text-2xl text-white">
+              {match.homeTeam.name}
+            </h2>
+            {homeRedCards.map((rc) => (
+              <span key={rc.id} className="red-card-badge" title={`Red card: ${rc.playerName} ${rc.minute}'`} />
+            ))}
           </div>
-          <TeamBadge team={match.homeTeam} size="lg" />
+          <p className="text-xs text-slate-400 font-mono mt-0.5">{match.homeTeam.country}</p>
         </div>
 
         {/* Center Score & Match Status */}
@@ -99,22 +100,17 @@ export const MatchHeader: React.FC<MatchHeaderProps> = ({ match }) => {
         </div>
 
         {/* Away Team */}
-        <div className="col-span-5 flex flex-col-reverse sm:flex-row items-center sm:justify-start gap-3 text-center sm:text-left">
-          <TeamBadge team={match.awayTeam} size="lg" />
-          <div>
-            <div className="flex items-center justify-center sm:justify-start gap-2">
-              <span className="text-lg sm:text-xl select-none" title={match.awayTeam.country}>
-                {getTeamFlag(match.awayTeam)}
-              </span>
-              <h2 className="font-display font-bold text-base sm:text-2xl text-white">
-                {match.awayTeam.name}
-              </h2>
-              {awayRedCards.map((rc) => (
-                <span key={rc.id} className="red-card-badge" title={`Red card: ${rc.playerName} ${rc.minute}'`} />
-              ))}
-            </div>
-            <p className="text-xs text-slate-400 font-mono mt-0.5">{match.awayTeam.country}</p>
+        <div className="col-span-5 flex flex-col items-center sm:items-start justify-center text-center sm:text-left">
+          <div className="flex items-center justify-center sm:justify-start gap-2.5">
+            <TeamFlag team={match.awayTeam} className="w-8 h-5.5" />
+            <h2 className="font-display font-bold text-base sm:text-2xl text-white">
+              {match.awayTeam.name}
+            </h2>
+            {awayRedCards.map((rc) => (
+              <span key={rc.id} className="red-card-badge" title={`Red card: ${rc.playerName} ${rc.minute}'`} />
+            ))}
           </div>
+          <p className="text-xs text-slate-400 font-mono mt-0.5">{match.awayTeam.country}</p>
         </div>
 
       </div>
