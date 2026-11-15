@@ -193,27 +193,54 @@ export function getSeedMatches(baseDateString: string): Match[] {
   ];
 }
 
-// Generate football pitch coordinates for standard 4-3-3 formation
-function generatePitchStarters(teamName: string, prefix: string, isHome: boolean) {
-  // isHome plays from left to right (X: 10 to 45), away plays right to left (X: 90 down to 55)
+const HOME_STARTERS_POOL = [
+  { name: 'Thibaut Courtois', number: 1, position: 'GK', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/148011.png&w=96&h=96&scale=crop' },
+  { name: 'Dani Carvajal', number: 2, position: 'RB', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/167246.png&w=96&h=96&scale=crop' },
+  { name: 'Eder Militão', number: 3, position: 'CB', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/226154.png&w=96&h=96&scale=crop' },
+  { name: 'Antonio Rüdiger', number: 22, position: 'CB', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/159419.png&w=96&h=96&scale=crop' },
+  { name: 'Ferland Mendy', number: 23, position: 'LB', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/226553.png&w=96&h=96&scale=crop' },
+  { name: 'Federico Valverde', number: 8, position: 'CM', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/226500.png&w=96&h=96&scale=crop' },
+  { name: 'Eduardo Camavinga', number: 6, position: 'CM', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/271708.png&w=96&h=96&scale=crop' },
+  { name: 'Jude Bellingham', number: 5, position: 'CAM', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/285747.png&w=96&h=96&scale=crop' },
+  { name: 'Rodrygo Goes', number: 11, position: 'RW', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/253896.png&w=96&h=96&scale=crop' },
+  { name: 'Kylian Mbappé', number: 9, position: 'ST', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/230784.png&w=96&h=96&scale=crop' },
+  { name: 'Vinicius Jr', number: 7, position: 'LW', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/248239.png&w=96&h=96&scale=crop' },
+];
+
+const AWAY_STARTERS_POOL = [
+  { name: 'Ederson Moraes', number: 31, position: 'GK', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/180373.png&w=96&h=96&scale=crop' },
+  { name: 'Kyle Walker', number: 2, position: 'RB', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/128386.png&w=96&h=96&scale=crop' },
+  { name: 'Ruben Dias', number: 3, position: 'CB', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/226156.png&w=96&h=96&scale=crop' },
+  { name: 'John Stones', number: 5, position: 'CB', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/170669.png&w=96&h=96&scale=crop' },
+  { name: 'Josko Gvardiol', number: 24, position: 'LB', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/283624.png&w=96&h=96&scale=crop' },
+  { name: 'Rodrigo Hernandez', number: 16, position: 'DM', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/226162.png&w=96&h=96&scale=crop' },
+  { name: 'Kevin De Bruyne', number: 17, position: 'CM', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/128456.png&w=96&h=96&scale=crop' },
+  { name: 'Bernardo Silva', number: 20, position: 'CM', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/183120.png&w=96&h=96&scale=crop' },
+  { name: 'Phil Foden', number: 47, position: 'RW', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/248554.png&w=96&h=96&scale=crop' },
+  { name: 'Erling Haaland', number: 9, position: 'ST', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/253941.png&w=96&h=96&scale=crop' },
+  { name: 'Jeremy Doku', number: 11, position: 'LW', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/285748.png&w=96&h=96&scale=crop' },
+];
+
+function generatePitchStarters(prefix: string, isHome: boolean) {
   const gkX = isHome ? 12 : 88;
   const defX = isHome ? 25 : 75;
   const midX = isHome ? 38 : 62;
   const attX = isHome ? 48 : 52;
 
-  return [
-    { id: `${prefix}-1`, name: `${teamName} GK`, number: 1, position: 'GK', gridX: gkX, gridY: 50 },
-    { id: `${prefix}-2`, name: 'Right Back', number: 2, position: 'RB', gridX: defX, gridY: 20 },
-    { id: `${prefix}-3`, name: 'Center Back L', number: 3, position: 'CB', gridX: defX, gridY: 40 },
-    { id: `${prefix}-4`, name: 'Center Back R', number: 4, position: 'CB', gridX: defX, gridY: 60 },
-    { id: `${prefix}-5`, name: 'Left Back', number: 5, position: 'LB', gridX: defX, gridY: 80 },
-    { id: `${prefix}-6`, name: 'Def Midfielder', number: 6, position: 'DM', gridX: midX, gridY: 50 },
-    { id: `${prefix}-7`, name: 'Central Mid L', number: 8, position: 'CM', gridX: midX, gridY: 30 },
-    { id: `${prefix}-8`, name: 'Central Mid R', number: 10, position: 'CM', gridX: midX, gridY: 70 },
-    { id: `${prefix}-9`, name: 'Right Winger', number: 7, position: 'RW', gridX: attX, gridY: 20 },
-    { id: `${prefix}-10`, name: 'Striker', number: 9, position: 'ST', gridX: attX, gridY: 50 },
-    { id: `${prefix}-11`, name: 'Left Winger', number: 11, position: 'LW', gridX: attX, gridY: 80 },
-  ];
+  const pool = isHome ? HOME_STARTERS_POOL : AWAY_STARTERS_POOL;
+
+  const yPositions = [50, 20, 40, 60, 80, 50, 30, 70, 20, 50, 80];
+  const xPositions = [gkX, defX, defX, defX, defX, midX, midX, midX, attX, attX, attX];
+
+  return pool.map((p, idx) => ({
+    id: `${prefix}-${idx + 1}`,
+    name: p.name,
+    number: p.number,
+    position: p.position,
+    image: p.image,
+    gridX: xPositions[idx] || 50,
+    gridY: yPositions[idx] || 50,
+  }));
 }
 
 export function getSeedLineups(matchId: string): MatchLineups {
@@ -225,24 +252,26 @@ export function getSeedLineups(matchId: string): MatchLineups {
       formation: '4-3-3',
       confirmed: isConfirmed,
       coach: 'Carlo Ancelotti',
-      startingXI: generatePitchStarters('Home Team', 'h', true),
+      startingXI: generatePitchStarters('h', true),
       substitutes: [
-        { id: 'sub-h-1', name: 'Sub GK', number: 13, position: 'GK', gridX: 0, gridY: 0 },
-        { id: 'sub-h-2', name: 'Reserve Defender', number: 17, position: 'DF', gridX: 0, gridY: 0 },
-        { id: 'sub-h-3', name: 'Impact Midfielder', number: 19, position: 'MF', gridX: 0, gridY: 0 },
-        { id: 'sub-h-4', name: 'Speed Forward', number: 21, position: 'FW', gridX: 0, gridY: 0 },
+        { id: 'sub-h-1', name: 'Andriy Lunin', number: 13, position: 'GK', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/247942.png&w=96&h=96&scale=crop', gridX: 0, gridY: 0 },
+        { id: 'sub-h-2', name: 'Luka Modric', number: 10, position: 'CM', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/85942.png&w=96&h=96&scale=crop', gridX: 0, gridY: 0 },
+        { id: 'sub-h-3', name: 'Brahim Diaz', number: 21, position: 'RW', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/231070.png&w=96&h=96&scale=crop', gridX: 0, gridY: 0 },
+        { id: 'sub-h-4', name: 'Arda Güler', number: 15, position: 'CAM', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/328402.png&w=96&h=96&scale=crop', gridX: 0, gridY: 0 },
+        { id: 'sub-h-5', name: 'Endrick Felipe', number: 16, position: 'ST', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/347493.png&w=96&h=96&scale=crop', gridX: 0, gridY: 0 },
       ],
     },
     away: {
       formation: '4-3-3',
       confirmed: isConfirmed,
       coach: 'Pep Guardiola',
-      startingXI: generatePitchStarters('Away Team', 'a', false),
+      startingXI: generatePitchStarters('a', false),
       substitutes: [
-        { id: 'sub-a-1', name: 'Away Sub GK', number: 18, position: 'GK', gridX: 0, gridY: 0 },
-        { id: 'sub-a-2', name: 'Away Defender', number: 20, position: 'DF', gridX: 0, gridY: 0 },
-        { id: 'sub-a-3', name: 'Away Playmaker', number: 23, position: 'MF', gridX: 0, gridY: 0 },
-        { id: 'sub-a-4', name: 'Away Striker', number: 27, position: 'FW', gridX: 0, gridY: 0 },
+        { id: 'sub-a-1', name: 'Stefan Ortega', number: 18, position: 'GK', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/167247.png&w=96&h=96&scale=crop', gridX: 0, gridY: 0 },
+        { id: 'sub-a-2', name: 'Manuel Akanji', number: 25, position: 'CB', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/215779.png&w=96&h=96&scale=crop', gridX: 0, gridY: 0 },
+        { id: 'sub-a-3', name: 'Mateo Kovacic', number: 8, position: 'CM', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/156749.png&w=96&h=96&scale=crop', gridX: 0, gridY: 0 },
+        { id: 'sub-a-4', name: 'Jack Grealish', number: 10, position: 'LW', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/175923.png&w=96&h=96&scale=crop', gridX: 0, gridY: 0 },
+        { id: 'sub-a-5', name: 'Savinho Moreira', number: 26, position: 'RW', image: 'https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/328405.png&w=96&h=96&scale=crop', gridX: 0, gridY: 0 },
       ],
     },
   };

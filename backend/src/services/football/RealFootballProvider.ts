@@ -108,6 +108,8 @@ export class RealFootballProvider implements IFootballDataProvider {
     return seed || null;
   }
 
+  private teamRosterCache = new Map<string, any[]>();
+
   async getMatchLineups(matchId: string): Promise<MatchLineups | null> {
     const matchMeta = this.matchCache.get(matchId);
     const leagueCode = matchMeta?.leagueCode || 'uefa.nations';
@@ -118,15 +120,43 @@ export class RealFootballProvider implements IFootballDataProvider {
         const homeRoster = summary.rosters.find((r: any) => r.homeAway === 'home') || summary.rosters[0];
         const awayRoster = summary.rosters.find((r: any) => r.homeAway === 'away') || summary.rosters[1];
 
-        const homeLineup = this.parseRosterToLineup(homeRoster, true);
-        const awayLineup = this.parseRosterToLineup(awayRoster, false);
+        // 1. If official starting roster is already published in summary
+        if (
+          Array.isArray(homeRoster.roster) && homeRoster.roster.length >= 11 &&
+          Array.isArray(awayRoster.roster) && awayRoster.roster.length >= 11
+        ) {
+          const homeLineup = this.parseRosterToLineup(homeRoster, true);
+          const awayLineup = this.parseRosterToLineup(awayRoster, false);
 
-        if (homeLineup.startingXI.length > 0 && awayLineup.startingXI.length > 0) {
-          return {
-            matchId,
-            home: homeLineup,
-            away: awayLineup,
-          };
+          if (homeLineup.startingXI.length === 11 && awayLineup.startingXI.length === 11) {
+            return {
+              matchId,
+              home: homeLineup,
+              away: awayLineup,
+            };
+          }
+        }
+
+        // 2. If match is upcoming and starting lineups not yet finalized, fetch real club/national team squad
+        const homeTeamId = homeRoster.team?.id;
+        const awayTeamId = awayRoster.team?.id;
+
+        if (homeTeamId && awayTeamId) {
+          const [homeAthletes, awayAthletes] = await Promise.all([
+            this.fetchTeamRoster(homeTeamId, leagueCode),
+            this.fetchTeamRoster(awayTeamId, leagueCode),
+          ]);
+
+          if (homeAthletes.length >= 11 && awayAthletes.length >= 11) {
+            const homeCoach = homeRoster.coach?.[0]?.displayName || 'Head Coach';
+            const awayCoach = awayRoster.coach?.[0]?.displayName || 'Head Coach';
+
+            return {
+              matchId,
+              home: this.buildProjectedLineupFromRoster(homeAthletes, true, homeCoach),
+              away: this.buildProjectedLineupFromRoster(awayAthletes, false, awayCoach),
+            };
+          }
         }
       }
     } catch (err) {
@@ -134,6 +164,118 @@ export class RealFootballProvider implements IFootballDataProvider {
     }
 
     return getSeedLineups(matchId);
+  }
+
+  private async fetchTeamRoster(teamId: string, leagueCode: string): Promise<any[]> {
+    if (this.teamRosterCache.has(teamId)) {
+      return this.teamRosterCache.get(teamId)!;
+    }
+
+    try {
+      const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/${leagueCode}/teams/${teamId}/roster`;
+      const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (StreamXI/1.0)' } });
+      if (!res.ok) return [];
+      const data = await res.json();
+      const athletes = Array.isArray(data.athletes) ? data.athletes : [];
+      this.teamRosterCache.set(teamId, athletes);
+      return athletes;
+    } catch (err) {
+      console.warn(`[RealFootballProvider] Failed to fetch team roster for ${teamId}:`, err);
+      return [];
+    }
+  }
+
+  private buildProjectedLineupFromRoster(athletes: any[], isHome: boolean, coach: string = 'Head Coach'): TeamLineup {
+    const gks = athletes.filter((a) => a.position?.abbreviation === 'G' || a.position?.name?.toLowerCase().includes('goal'));
+    const defs = athletes.filter((a) => a.position?.abbreviation === 'D' || a.position?.name?.toLowerCase().includes('defend'));
+    const mids = athletes.filter((a) => a.position?.abbreviation === 'M' || a.position?.name?.toLowerCase().includes('midfield'));
+    const atts = athletes.filter((a) => a.position?.abbreviation === 'F' || a.position?.abbreviation === 'A' || a.position?.name?.toLowerCase().includes('forward') || a.position?.name?.toLowerCase().includes('attack'));
+
+    const starters: any[] = [];
+    const usedIds = new Set<string>();
+
+    const pick = (pool: any[], count: number) => {
+      let picked = 0;
+      for (const a of pool) {
+        if (picked >= count) break;
+        if (!usedIds.has(a.id)) {
+          usedIds.add(a.id);
+          starters.push(a);
+          picked++;
+        }
+      }
+    };
+
+    // 4-3-3 formation: 1 GK, 4 DF, 3 MF, 3 FW
+    pick(gks, 1);
+    pick(defs, 4);
+    pick(mids, 3);
+    pick(atts, 3);
+
+    // If any role lacked enough players, fill from remaining athletes
+    if (starters.length < 11) {
+      for (const a of athletes) {
+        if (starters.length >= 11) break;
+        if (!usedIds.has(a.id)) {
+          usedIds.add(a.id);
+          starters.push(a);
+        }
+      }
+    }
+
+    // Coordinates mapping
+    const mapCoordinates = (idx: number, isH: boolean) => {
+      const gkX = isH ? 12 : 88;
+      const defX = isH ? 25 : 75;
+      const midX = isH ? 37 : 63;
+      const attX = isH ? 47 : 53;
+
+      if (idx === 0) return { gridX: gkX, gridY: 50 };
+      if (idx <= 4) {
+        const spread = [20, 40, 60, 80];
+        return { gridX: defX, gridY: spread[idx - 1] || 50 };
+      }
+      if (idx <= 7) {
+        const spread = [30, 50, 70];
+        return { gridX: midX, gridY: spread[idx - 5] || 50 };
+      }
+      const spread = [25, 50, 75];
+      return { gridX: attX, gridY: spread[idx - 8] || 50 };
+    };
+
+    const jerseyDefaults = [1, 2, 3, 4, 5, 6, 8, 10, 7, 9, 11];
+
+    const startingXI: PitchPlayer[] = starters.slice(0, 11).map((a, i) => {
+      const coords = mapCoordinates(i, isHome);
+      return {
+        id: String(a.id || `p-${isHome ? 'h' : 'a'}-${i}`),
+        name: a.displayName || a.fullName || a.shortName || `Player ${i + 1}`,
+        number: parseInt(a.jersey) || jerseyDefaults[i] || i + 1,
+        position: a.position?.abbreviation || (i === 0 ? 'GK' : (i <= 4 ? 'DF' : (i <= 7 ? 'MF' : 'FW'))),
+        image: a.headshot?.href || `https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/${a.id}.png&w=96&h=96&scale=crop`,
+        gridX: coords.gridX,
+        gridY: coords.gridY,
+      };
+    });
+
+    const subsPool = athletes.filter((a) => !usedIds.has(a.id)).slice(0, 9);
+    const substitutes: PitchPlayer[] = subsPool.map((a, i) => ({
+      id: String(a.id || `sub-${isHome ? 'h' : 'a'}-${i}`),
+      name: a.displayName || a.fullName || a.shortName || `Sub ${i + 1}`,
+      number: parseInt(a.jersey) || 12 + i,
+      position: a.position?.abbreviation || 'SUB',
+      image: a.headshot?.href || `https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/${a.id}.png&w=96&h=96&scale=crop`,
+      gridX: 0,
+      gridY: 0,
+    }));
+
+    return {
+      formation: '4-3-3',
+      confirmed: false,
+      coach,
+      startingXI,
+      substitutes,
+    };
   }
 
   async getMatchStats(matchId: string): Promise<MatchStatsResponse | null> {
