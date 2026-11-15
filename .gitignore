@@ -25,3 +25,7 @@ coverage/
 Thumbs.db
 .vscode/
 .idea/
+
+# Documentation & Mockups
+docs/
+
