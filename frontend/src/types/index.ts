@@ -14,6 +14,8 @@ export interface Team {
   shortName?: string;
   code: string;
   country: string;
+  countryCode?: string;
+  flag?: string;
   logo?: string;
 }
 

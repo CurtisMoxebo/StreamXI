@@ -7,6 +7,7 @@ export const TeamSchema = z.object({
   code: z.string(),
   country: z.string(),
   countryCode: z.string().optional(),
+  flag: z.string().optional(),
   logo: z.string().optional(),
 });
 

@@ -320,6 +320,7 @@ export class RealFootballProvider implements IFootballDataProvider {
             name: homeComp.team.displayName || homeComp.team.name,
             code: homeComp.team.abbreviation || homeComp.team.displayName?.slice(0, 3).toUpperCase(),
             country: league.country,
+            flag: this.getTeamFlag(homeComp.team.displayName || homeComp.team.name, league.country),
             logo: homeComp.team.logo,
           },
           awayTeam: {
@@ -327,6 +328,7 @@ export class RealFootballProvider implements IFootballDataProvider {
             name: awayComp.team.displayName || awayComp.team.name,
             code: awayComp.team.abbreviation || awayComp.team.displayName?.slice(0, 3).toUpperCase(),
             country: league.country,
+            flag: this.getTeamFlag(awayComp.team.displayName || awayComp.team.name, league.country),
             logo: awayComp.team.logo,
           },
           kickoffTime: ev.date || new Date().toISOString(),
@@ -449,5 +451,31 @@ export class RealFootballProvider implements IFootballDataProvider {
       bigChancesCreated: 14,
       cleanSheets: form.filter((r) => r === 'W').length,
     };
+  }
+
+  private getTeamFlag(name: string, fallbackCountry: string): string {
+    const map: Record<string, string> = {
+      spain: '🇪🇸', england: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', france: '🇫🇷', germany: '🇩🇪', italy: '🇮🇹',
+      belgium: '🇧🇪', croatia: '🇭🇷', czechia: '🇨🇿', 'czech republic': '🇨🇿',
+      turkey: '🇹🇷', türkiye: '🇹🇷', finland: '🇫🇮', 'san marino': '🇸🇲',
+      belarus: '🇧🇾', albania: '🇦🇱', latvia: '🇱🇻', armenia: '🇦🇲', cyprus: '🇨🇾',
+      montenegro: '🇲🇪', suriname: '🇸🇷', eswatini: '🇸🇿', netherlands: '🇳🇱',
+      portugal: '🇵🇹', switzerland: '🇨🇭', scotland: '🏴󠁧󠁢󠁳󠁣󠁴󠁿', austria: '🇦🇹',
+      denmark: '🇩🇰', sweden: '🇸🇪', norway: '🇳🇴', poland: '🇵🇱', serbia: '🇷🇸',
+      greece: '🇬🇷', slovakia: '🇸🇰', hungary: '🇭🇺', romania: '🇷🇴', bulgaria: '🇧🇬',
+      slovenia: '🇸🇮', kazakhstan: '🇰🇿', georgia: '🇬🇪', iceland: '🇮🇸',
+      brazil: '🇧🇷', argentina: '🇦🇷', usa: '🇺🇸', mexico: '🇲🇽',
+    };
+
+    const n = name.toLowerCase().trim();
+    if (map[n]) return map[n];
+    const c = fallbackCountry.toLowerCase().trim();
+    if (map[c]) return map[c];
+    if (/madrid|barcelona|atletico|sevilla|valencia|betis|bilbao|sociedad/i.test(n)) return '🇪🇸';
+    if (/manchester|liverpool|arsenal|chelsea|tottenham|newcastle|aston villa/i.test(n)) return '🏴󠁧󠁢󠁥󠁮󠁧󠁿';
+    if (/milan|juventus|inter|roma|napoli|lazio/i.test(n)) return '🇮🇹';
+    if (/bayern|dortmund|leverkusen|leipzig|frankfurt/i.test(n)) return '🇩🇪';
+    if (/paris|marseille|lyon|monaco|lille/i.test(n)) return '🇫🇷';
+    return '⚽';
   }
 }

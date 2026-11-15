@@ -79,7 +79,8 @@ describe('Frontend Step 4: MatchDetailPage & Video Player Tests', () => {
       expect(screen.getByText('Real Madrid')).toBeInTheDocument();
       expect(screen.getByText('Manchester City')).toBeInTheDocument();
       expect(screen.getByText('2 : 2')).toBeInTheDocument();
-      expect(screen.getByText(/Vinicius Jr 12'/i)).toBeInTheDocument();
+      expect(screen.getByText('Vinicius Jr')).toBeInTheDocument();
+      expect(screen.getByText("12'")).toBeInTheDocument();
       expect(screen.getByTestId('stream-ready')).toBeInTheDocument();
     });
 

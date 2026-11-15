@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Match } from '../types/index.js';
+import { TeamBadge, getTeamFlag } from '../utils/flags.js';
 
 interface MatchHeaderProps {
   match: Match;
@@ -33,7 +34,7 @@ export const MatchHeader: React.FC<MatchHeaderProps> = ({ match }) => {
 
         <div className="flex items-center gap-2">
           <span className="text-xs px-2.5 py-1 rounded-full bg-surface-750 text-slate-300 font-semibold border border-surface-700">
-            {match.competition.logo} {match.competition.name}
+            {match.competition.logo || '🏆'} {match.competition.name}
           </span>
         </div>
       </div>
@@ -45,6 +46,9 @@ export const MatchHeader: React.FC<MatchHeaderProps> = ({ match }) => {
         <div className="col-span-5 flex flex-col sm:flex-row items-center sm:justify-end gap-3 text-center sm:text-right">
           <div>
             <div className="flex items-center justify-center sm:justify-end gap-2">
+              <span className="text-lg sm:text-xl select-none" title={match.homeTeam.country}>
+                {getTeamFlag(match.homeTeam)}
+              </span>
               <h2 className="font-display font-bold text-base sm:text-2xl text-white">
                 {match.homeTeam.name}
               </h2>
@@ -54,9 +58,7 @@ export const MatchHeader: React.FC<MatchHeaderProps> = ({ match }) => {
             </div>
             <p className="text-xs text-slate-400 font-mono mt-0.5">{match.homeTeam.country}</p>
           </div>
-          <div className="w-12 h-12 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-xl shadow-md flex-shrink-0">
-            {match.homeTeam.logo || '⚽'}
-          </div>
+          <TeamBadge team={match.homeTeam} size="lg" />
         </div>
 
         {/* Center Score & Match Status */}
@@ -98,11 +100,12 @@ export const MatchHeader: React.FC<MatchHeaderProps> = ({ match }) => {
 
         {/* Away Team */}
         <div className="col-span-5 flex flex-col-reverse sm:flex-row items-center sm:justify-start gap-3 text-center sm:text-left">
-          <div className="w-12 h-12 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-xl shadow-md flex-shrink-0">
-            {match.awayTeam.logo || '⚽'}
-          </div>
+          <TeamBadge team={match.awayTeam} size="lg" />
           <div>
             <div className="flex items-center justify-center sm:justify-start gap-2">
+              <span className="text-lg sm:text-xl select-none" title={match.awayTeam.country}>
+                {getTeamFlag(match.awayTeam)}
+              </span>
               <h2 className="font-display font-bold text-base sm:text-2xl text-white">
                 {match.awayTeam.name}
               </h2>
@@ -118,24 +121,18 @@ export const MatchHeader: React.FC<MatchHeaderProps> = ({ match }) => {
 
       {/* Goal Scorers list for Live or Past matches */}
       {match.scorers && match.scorers.length > 0 && (
-        <div className="pt-3 border-t border-surface-750/70 flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-xs text-slate-300">
-          <span className="text-slate-400 font-semibold flex items-center gap-1">
-            <span>⚽ Scorers:</span>
-          </span>
-          {match.scorers.map((scorer) => (
-            <span key={scorer.id} className="font-medium text-slate-200">
-              {scorer.playerName} {scorer.minute}'
-              {scorer.isOwnGoal && ' (OG)'}
-              {scorer.isPenalty && ' (P)'}
-            </span>
-          ))}
-        </div>
-      )}
-
-      {/* Venue */}
-      {match.venue && (
-        <div className="text-center text-[11px] text-slate-400">
-          🏟️ {match.venue}
+        <div className="pt-2 border-t border-surface-750/70 text-xs text-slate-400">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+            {match.scorers.map((scorer) => (
+              <span key={scorer.id} className="inline-flex items-center gap-1 font-mono">
+                <span>⚽</span>
+                <span className="font-medium text-slate-200">{scorer.playerName}</span>
+                <span className="text-brand-400">{scorer.minute}'</span>
+                {scorer.isPenalty && <span className="text-[10px] text-amber-400 font-bold">(P)</span>}
+                {scorer.isOwnGoal && <span className="text-[10px] text-accent-red font-bold">(OG)</span>}
+              </span>
+            ))}
+          </div>
         </div>
       )}
     </div>

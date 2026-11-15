@@ -32,14 +32,14 @@ describe('Step 4: Gemini AI Match Insights Integration Tests (Tab 3)', () => {
     // Exactly one analytical paragraph
     expect(typeof res.body.analyticalSummary).toBe('string');
     expect(res.body.analyticalSummary.length).toBeGreaterThan(50);
-  });
+  }, 30000);
 
   it('GET /api/matches/:id/ai-insights works for upcoming matches', async () => {
     const res = await request(app).get('/api/matches/epl-liv-che/ai-insights');
     expect(res.status).toBe(200);
     expect(res.body.lowRiskBets).toHaveLength(2);
     expect(res.body.highRiskBets).toHaveLength(2);
-  });
+  }, 30000);
 
   it('GET /api/matches/:id/ai-insights returns 400 Bad Request for finished matches', async () => {
     const res = await request(app).get('/api/matches/epl-tot-mun/ai-insights');

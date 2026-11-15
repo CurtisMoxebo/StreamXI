@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Match } from '../types/index.js';
+import { TeamBadge, getTeamFlag } from '../utils/flags.js';
 
 interface MatchCardProps {
   match: Match;
@@ -27,7 +28,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match }) => {
   return (
     <div
       onClick={() => navigate(`/match/${match.id}`)}
-      className="match-card bg-surface-800/90 rounded-xl border border-surface-700/80 p-4 relative overflow-hidden cursor-pointer"
+      className="match-card bg-surface-800/90 rounded-xl border border-surface-700/80 p-4 relative overflow-hidden cursor-pointer hover:border-brand-500/50 transition-all duration-300"
       data-testid={`match-card-${match.id}`}
     >
       {/* Live highlight bar on left */}
@@ -76,11 +77,12 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match }) => {
         <div className="flex-1 space-y-2.5">
           {/* Home Team */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-7 h-7 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-xs font-bold text-white shadow-sm overflow-hidden">
-                <span>{match.homeTeam.logo || '⚽'}</span>
-              </div>
+            <div className="flex items-center gap-2.5">
+              <TeamBadge team={match.homeTeam} size="md" />
               <div className="flex items-center gap-2">
+                <span className="text-sm select-none mr-0.5" title={match.homeTeam.country}>
+                  {getTeamFlag(match.homeTeam)}
+                </span>
                 <span className="font-semibold text-sm sm:text-base text-slate-100">
                   {match.homeTeam.name}
                 </span>
@@ -113,11 +115,12 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match }) => {
 
           {/* Away Team */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-7 h-7 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-xs font-bold text-white shadow-sm overflow-hidden">
-                <span>{match.awayTeam.logo || '⚽'}</span>
-              </div>
+            <div className="flex items-center gap-2.5">
+              <TeamBadge team={match.awayTeam} size="md" />
               <div className="flex items-center gap-2">
+                <span className="text-sm select-none mr-0.5" title={match.awayTeam.country}>
+                  {getTeamFlag(match.awayTeam)}
+                </span>
                 <span className="font-semibold text-sm sm:text-base text-slate-100">
                   {match.awayTeam.name}
                 </span>
