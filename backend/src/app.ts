@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import { matchesRouter } from './routes/matches.js';
 import { streamsRouter } from './routes/streams.js';
+import { liveTvRouter } from './routes/liveTv.js';
 import { requestLogger } from './middleware/requestLogger.js';
 import { logger } from './utils/logger.js';
 
@@ -35,6 +36,7 @@ export function createApp() {
   // API Routes
   app.use('/api/matches', matchesRouter);
   app.use('/api/streams', streamsRouter);
+  app.use('/api/livetv', liveTvRouter);
 
   // 404 Handler for unmatched routes
   app.use((_req: Request, res: Response) => {
