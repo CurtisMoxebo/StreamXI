@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { footballService } from '../services/football/FootballService.js';
 import { aiService } from '../services/ai/AIService.js';
+import { xtreamService } from '../services/streaming/XtreamService.js';
 
 export const matchesRouter = Router();
 
@@ -106,5 +107,24 @@ matchesRouter.get('/:id/ai-insights', async (req: Request<{ id: string }>, res: 
   } catch (err: any) {
     console.error(`Error generating AI insights for ${req.params.id}:`, err);
     res.status(500).json({ error: err.message || 'Failed to generate AI insights' });
+  }
+});
+
+/**
+ * GET /api/matches/:id/stream-info
+ * Returns streaming availability status and TV channel list
+ */
+matchesRouter.get('/:id/stream-info', async (req: Request<{ id: string }>, res: Response) => {
+  try {
+    const matchId = String(req.params.id);
+    const streamInfo = await xtreamService.getMatchStreamInfo(matchId);
+    res.json(streamInfo);
+  } catch (err: any) {
+    if (err.message && err.message.includes('not found')) {
+      res.status(404).json({ error: err.message });
+      return;
+    }
+    console.error(`Error fetching stream info for ${req.params.id}:`, err);
+    res.status(500).json({ error: 'Failed to retrieve stream info' });
   }
 });

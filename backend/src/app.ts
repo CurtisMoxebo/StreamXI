@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import { matchesRouter } from './routes/matches.js';
+import { streamsRouter } from './routes/streams.js';
 
 export function createApp() {
   const app = express();
@@ -25,6 +26,7 @@ export function createApp() {
 
   // API Routes
   app.use('/api/matches', matchesRouter);
+  app.use('/api/streams', streamsRouter);
 
   // 404 Handler for unmatched routes
   app.use((_req: Request, res: Response) => {
