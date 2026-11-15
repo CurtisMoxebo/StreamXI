@@ -109,6 +109,59 @@ export class RealFootballProvider implements IFootballDataProvider {
   }
 
   private teamRosterCache = new Map<string, any[]>();
+  private playerPhotoCache = new Map<string, string | undefined>();
+
+  private async resolveRealPlayerPhoto(name: string): Promise<string | undefined> {
+    const cleanName = (name || '').trim();
+    if (!cleanName || cleanName.toLowerCase().startsWith('player ') || cleanName.toLowerCase().startsWith('sub ')) {
+      return undefined;
+    }
+
+    if (this.playerPhotoCache.has(cleanName)) {
+      return this.playerPhotoCache.get(cleanName);
+    }
+
+    try {
+      // 1. FotMob suggest API (returns direct official player cutout headshot)
+      const res = await fetch(`https://apigw.fotmob.com/searchapi/suggest?term=${encodeURIComponent(cleanName)}`, {
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const hit = data.squadMemberSuggest?.[0]?.options?.[0] || data.playerSuggest?.[0]?.options?.[0];
+        if (hit) {
+          const parts = (hit.text || '').split('|');
+          const id = parts[1] || hit.payload?.id;
+          if (id) {
+            const url = `https://images.fotmob.com/image_resources/playerimages/${id}.png`;
+            this.playerPhotoCache.set(cleanName, url);
+            return url;
+          }
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    try {
+      // 2. Wikipedia Summary API
+      const wikiRes = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(cleanName)}`, {
+        headers: { 'User-Agent': 'StreamXI/1.0 (info@streamxi.com)' },
+      });
+      if (wikiRes.ok) {
+        const wikiData = await wikiRes.json();
+        if (wikiData.thumbnail?.source) {
+          this.playerPhotoCache.set(cleanName, wikiData.thumbnail.source);
+          return wikiData.thumbnail.source;
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    this.playerPhotoCache.set(cleanName, undefined);
+    return undefined;
+  }
 
   async getMatchLineups(matchId: string): Promise<MatchLineups | null> {
     const matchMeta = this.matchCache.get(matchId);
@@ -125,8 +178,10 @@ export class RealFootballProvider implements IFootballDataProvider {
           Array.isArray(homeRoster.roster) && homeRoster.roster.length >= 11 &&
           Array.isArray(awayRoster.roster) && awayRoster.roster.length >= 11
         ) {
-          const homeLineup = this.parseRosterToLineup(homeRoster, true);
-          const awayLineup = this.parseRosterToLineup(awayRoster, false);
+          const [homeLineup, awayLineup] = await Promise.all([
+            this.parseRosterToLineup(homeRoster, true),
+            this.parseRosterToLineup(awayRoster, false),
+          ]);
 
           if (homeLineup.startingXI.length === 11 && awayLineup.startingXI.length === 11) {
             return {
@@ -151,10 +206,15 @@ export class RealFootballProvider implements IFootballDataProvider {
             const homeCoach = homeRoster.coach?.[0]?.displayName || 'Head Coach';
             const awayCoach = awayRoster.coach?.[0]?.displayName || 'Head Coach';
 
+            const [homeLineup, awayLineup] = await Promise.all([
+              this.buildProjectedLineupFromRoster(homeAthletes, true, homeCoach),
+              this.buildProjectedLineupFromRoster(awayAthletes, false, awayCoach),
+            ]);
+
             return {
               matchId,
-              home: this.buildProjectedLineupFromRoster(homeAthletes, true, homeCoach),
-              away: this.buildProjectedLineupFromRoster(awayAthletes, false, awayCoach),
+              home: homeLineup,
+              away: awayLineup,
             };
           }
         }
@@ -185,7 +245,7 @@ export class RealFootballProvider implements IFootballDataProvider {
     }
   }
 
-  private buildProjectedLineupFromRoster(athletes: any[], isHome: boolean, coach: string = 'Head Coach'): TeamLineup {
+  private async buildProjectedLineupFromRoster(athletes: any[], isHome: boolean, coach: string = 'Head Coach'): Promise<TeamLineup> {
     const gks = athletes.filter((a) => a.position?.abbreviation === 'G' || a.position?.name?.toLowerCase().includes('goal'));
     const defs = athletes.filter((a) => a.position?.abbreviation === 'D' || a.position?.name?.toLowerCase().includes('defend'));
     const mids = athletes.filter((a) => a.position?.abbreviation === 'M' || a.position?.name?.toLowerCase().includes('midfield'));
@@ -245,7 +305,15 @@ export class RealFootballProvider implements IFootballDataProvider {
 
     const jerseyDefaults = [1, 2, 3, 4, 5, 6, 8, 10, 7, 9, 11];
 
-    const startingXI: PitchPlayer[] = starters.slice(0, 11).map((a, i) => {
+    const startersToMap = starters.slice(0, 11);
+    const subsPool = athletes.filter((a) => !usedIds.has(a.id)).slice(0, 9);
+
+    const [startingPhotos, subsPhotos] = await Promise.all([
+      Promise.all(startersToMap.map((a) => this.resolveRealPlayerPhoto(a.displayName || a.fullName || a.shortName || ''))),
+      Promise.all(subsPool.map((a) => this.resolveRealPlayerPhoto(a.displayName || a.fullName || a.shortName || ''))),
+    ]);
+
+    const startingXI: PitchPlayer[] = startersToMap.map((a, i) => {
       const coords = mapCoordinates(i, isHome);
       const athleteName = a.displayName || a.fullName || a.shortName || `Player ${i + 1}`;
       return {
@@ -253,13 +321,12 @@ export class RealFootballProvider implements IFootballDataProvider {
         name: athleteName,
         number: parseInt(a.jersey) || jerseyDefaults[i] || i + 1,
         position: a.position?.abbreviation || (i === 0 ? 'GK' : (i <= 4 ? 'DF' : (i <= 7 ? 'MF' : 'FW'))),
-        image: a.headshot?.href || `https://i.pravatar.cc/150?u=${encodeURIComponent(athleteName)}`,
+        image: startingPhotos[i] || a.headshot?.href,
         gridX: coords.gridX,
         gridY: coords.gridY,
       };
     });
 
-    const subsPool = athletes.filter((a) => !usedIds.has(a.id)).slice(0, 9);
     const substitutes: PitchPlayer[] = subsPool.map((a, i) => {
       const athleteName = a.displayName || a.fullName || a.shortName || `Sub ${i + 1}`;
       return {
@@ -267,7 +334,7 @@ export class RealFootballProvider implements IFootballDataProvider {
         name: athleteName,
         number: parseInt(a.jersey) || 12 + i,
         position: a.position?.abbreviation || 'SUB',
-        image: a.headshot?.href || `https://i.pravatar.cc/150?u=${encodeURIComponent(athleteName)}`,
+        image: subsPhotos[i] || a.headshot?.href,
         gridX: 0,
         gridY: 0,
       };
@@ -503,13 +570,16 @@ export class RealFootballProvider implements IFootballDataProvider {
     return matches;
   }
 
-  private parseRosterToLineup(rosterData: any, isHome: boolean): TeamLineup {
+  private async parseRosterToLineup(rosterData: any, isHome: boolean): Promise<TeamLineup> {
     const formation = rosterData?.formation || '4-3-3';
     const coach = rosterData?.coach?.[0]?.displayName || (isHome ? 'Head Coach' : 'Visiting Coach');
     const athletes = Array.isArray(rosterData?.roster) ? rosterData.roster : [];
 
     const startingAthletes = athletes.filter((a: any) => a.starter).slice(0, 11);
     const subAthletes = athletes.filter((a: any) => !a.starter).slice(0, 9);
+
+    const startersToMap = startingAthletes.length === 11 ? startingAthletes : athletes.slice(0, 11);
+    const subsToMap = subAthletes.length > 0 ? subAthletes : athletes.slice(11, 20);
 
     // Coordinate mapping helper for horizontal pitch (Home left 0-50%, Away right 50-100%)
     const mapCoordinates = (idx: number, total: number, isH: boolean): { gridX: number; gridY: number } => {
@@ -536,9 +606,12 @@ export class RealFootballProvider implements IFootballDataProvider {
       return { gridX: attX, gridY: spread[idx - 8] || 50 };
     };
 
-    const startingXI: PitchPlayer[] = (
-      startingAthletes.length === 11 ? startingAthletes : athletes.slice(0, 11)
-    ).map((p: any, i: number) => {
+    const [startingPhotos, subsPhotos] = await Promise.all([
+      Promise.all(startersToMap.map((p: any) => this.resolveRealPlayerPhoto(p.athlete?.displayName || p.athlete?.shortName || ''))),
+      Promise.all(subsToMap.map((p: any) => this.resolveRealPlayerPhoto(p.athlete?.displayName || p.athlete?.shortName || ''))),
+    ]);
+
+    const startingXI: PitchPlayer[] = startersToMap.map((p: any, i: number) => {
       const coords = mapCoordinates(i, 11, isHome);
       const athleteId = p.athlete?.id;
       const athleteName = p.athlete?.displayName || p.athlete?.shortName || `Player ${i + 1}`;
@@ -547,15 +620,13 @@ export class RealFootballProvider implements IFootballDataProvider {
         name: athleteName,
         number: parseInt(p.jersey) || i + 1,
         position: p.position?.abbreviation || (i === 0 ? 'GK' : 'MF'),
-        image: p.athlete?.headshot?.href || `https://i.pravatar.cc/150?u=${encodeURIComponent(athleteName)}`,
+        image: startingPhotos[i] || p.athlete?.headshot?.href,
         gridX: coords.gridX,
         gridY: coords.gridY,
       };
     });
 
-    const substitutes: PitchPlayer[] = (
-      subAthletes.length > 0 ? subAthletes : athletes.slice(11, 20)
-    ).map((p: any, i: number) => {
+    const substitutes: PitchPlayer[] = subsToMap.map((p: any, i: number) => {
       const athleteId = p.athlete?.id;
       const athleteName = p.athlete?.displayName || p.athlete?.shortName || `Sub ${i + 1}`;
       return {
@@ -563,7 +634,7 @@ export class RealFootballProvider implements IFootballDataProvider {
         name: athleteName,
         number: parseInt(p.jersey) || 12 + i,
         position: p.position?.abbreviation || 'SUB',
-        image: p.athlete?.headshot?.href || `https://i.pravatar.cc/150?u=${encodeURIComponent(athleteName)}`,
+        image: subsPhotos[i] || p.athlete?.headshot?.href,
         gridX: 0,
         gridY: 0,
       };
