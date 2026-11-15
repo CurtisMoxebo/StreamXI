@@ -365,36 +365,42 @@ export class RealFootballProvider implements IFootballDataProvider {
     const startingAthletes = athletes.filter((a: any) => a.starter).slice(0, 11);
     const subAthletes = athletes.filter((a: any) => !a.starter).slice(0, 9);
 
-    // Coordinate mapping helper
+    // Coordinate mapping helper for horizontal pitch (Home left 0-50%, Away right 50-100%)
     const mapCoordinates = (idx: number, total: number, isH: boolean): { gridX: number; gridY: number } => {
+      const gkX = isH ? 12 : 88;
+      const defX = isH ? 25 : 75;
+      const midX = isH ? 37 : 63;
+      const attX = isH ? 47 : 53;
+
       if (idx === 0) {
         // Goalkeeper
-        return { gridX: 50, gridY: isH ? 88 : 12 };
+        return { gridX: gkX, gridY: 50 };
       }
 
       // Distribute remaining 10 outfield players in 3 bands (Defense, Midfield, Attack)
       if (idx <= 4) {
-        const spread = [18, 38, 62, 82];
-        return { gridX: spread[idx - 1] || 50, gridY: isH ? 72 : 28 };
+        const spread = [20, 40, 60, 80];
+        return { gridX: defX, gridY: spread[idx - 1] || 50 };
       }
       if (idx <= 7) {
-        const spread = [25, 50, 75];
-        return { gridX: spread[idx - 5] || 50, gridY: isH ? 52 : 48 };
+        const spread = [30, 50, 70];
+        return { gridX: midX, gridY: spread[idx - 5] || 50 };
       }
-      const spread = [22, 50, 78];
-      return { gridX: spread[idx - 8] || 50, gridY: isH ? 30 : 68 };
+      const spread = [25, 50, 75];
+      return { gridX: attX, gridY: spread[idx - 8] || 50 };
     };
 
     const startingXI: PitchPlayer[] = (
       startingAthletes.length === 11 ? startingAthletes : athletes.slice(0, 11)
     ).map((p: any, i: number) => {
       const coords = mapCoordinates(i, 11, isHome);
+      const athleteId = p.athlete?.id;
       return {
-        id: String(p.athlete?.id || `p-${isHome ? 'h' : 'a'}-${i}`),
+        id: String(athleteId || `p-${isHome ? 'h' : 'a'}-${i}`),
         name: p.athlete?.displayName || p.athlete?.shortName || `Player ${i + 1}`,
         number: parseInt(p.jersey) || i + 1,
         position: p.position?.abbreviation || (i === 0 ? 'GK' : 'MF'),
-        image: p.athlete?.headshot?.href,
+        image: p.athlete?.headshot?.href || (athleteId ? `https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/${athleteId}.png&w=96&h=96&scale=crop` : undefined),
         gridX: coords.gridX,
         gridY: coords.gridY,
       };
@@ -402,15 +408,18 @@ export class RealFootballProvider implements IFootballDataProvider {
 
     const substitutes: PitchPlayer[] = (
       subAthletes.length > 0 ? subAthletes : athletes.slice(11, 20)
-    ).map((p: any, i: number) => ({
-      id: String(p.athlete?.id || `sub-${isHome ? 'h' : 'a'}-${i}`),
-      name: p.athlete?.displayName || p.athlete?.shortName || `Sub ${i + 1}`,
-      number: parseInt(p.jersey) || 12 + i,
-      position: p.position?.abbreviation || 'SUB',
-      image: p.athlete?.headshot?.href,
-      gridX: 0,
-      gridY: 0,
-    }));
+    ).map((p: any, i: number) => {
+      const athleteId = p.athlete?.id;
+      return {
+        id: String(athleteId || `sub-${isHome ? 'h' : 'a'}-${i}`),
+        name: p.athlete?.displayName || p.athlete?.shortName || `Sub ${i + 1}`,
+        number: parseInt(p.jersey) || 12 + i,
+        position: p.position?.abbreviation || 'SUB',
+        image: p.athlete?.headshot?.href || (athleteId ? `https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/${athleteId}.png&w=96&h=96&scale=crop` : undefined),
+        gridX: 0,
+        gridY: 0,
+      };
+    });
 
     return {
       formation,

@@ -4,7 +4,7 @@ import React from 'react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import '../src/i18n/index.js';
 import { MatchDetailPage } from '../src/pages/MatchDetailPage.js';
-import { LineupsTab } from '../src/components/tabs/LineupsTab.js';
+import { LineupsTab, formatPlayerDisplayName, getPlayerFaceUrl } from '../src/components/tabs/LineupsTab.js';
 import { StatsTab } from '../src/components/tabs/StatsTab.js';
 import { AiInsightsTab } from '../src/components/tabs/AiInsightsTab.js';
 import { api } from '../src/api/client.js';
@@ -180,10 +180,19 @@ describe('Match Detail Tabs & Lazy Loading', () => {
 
     expect(await screen.findByText('Carlo Ancelotti')).toBeDefined();
     expect(screen.getByText('Pep Guardiola')).toBeDefined();
-    expect(screen.getByText('Courtois')).toBeDefined();
-    expect(screen.getByText('Haaland')).toBeDefined();
-    expect(screen.getByText('Modric')).toBeDefined();
-    expect(screen.getByText('De Bruyne')).toBeDefined();
+    expect(screen.getByText('1 Courtois')).toBeDefined();
+    expect(screen.getByText('7 V. Jr')).toBeDefined();
+    expect(screen.getByText('9 Haaland')).toBeDefined();
+    expect(screen.getByText('10 Modric')).toBeDefined();
+    expect(screen.getByText('17 D. Bruyne')).toBeDefined();
+  });
+
+  it('formats player name as {number} {initial}. {last name}', () => {
+    expect(formatPlayerDisplayName('Kylian Mbappé', 9)).toBe('9 K. Mbappé');
+    expect(formatPlayerDisplayName('Vinicius Jr', 7)).toBe('7 V. Jr');
+    expect(formatPlayerDisplayName('Luka Modric', 10)).toBe('10 L. Modric');
+    expect(formatPlayerDisplayName('Pedri', 8)).toBe('8 Pedri');
+    expect(formatPlayerDisplayName('Kevin De Bruyne', 17)).toBe('17 K. De Bruyne');
   });
 
   it('renders StatsTab with in-game comparison stats for live match', async () => {

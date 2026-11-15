@@ -7,6 +7,45 @@ interface LineupsTabProps {
   matchId: string;
 }
 
+export const DEFAULT_PLAYER_AVATAR =
+  'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="%2394a3b8"><circle cx="32" cy="24" r="14"/><path d="M14 54c0-9.94 8.06-18 18-18s18 8.06 18 18v2H14v-2z"/></svg>';
+
+export function getPlayerFaceUrl(player: PitchPlayer): string {
+  if (player.image && player.image.startsWith('http')) {
+    return player.image;
+  }
+  if (player.id && /^\d+$/.test(player.id)) {
+    return `https://a.espncdn.com/combiner/i?img=/i/headshots/soccer/players/full/${player.id}.png&w=96&h=96&scale=crop`;
+  }
+  return DEFAULT_PLAYER_AVATAR;
+}
+
+/**
+ * Formats player name as '{player number} {initial of players first name}. {players last name}'
+ * E.g. (9, 'Kylian Mbappé') -> '9 K. Mbappé'
+ * If single name like 'Pedri' -> '8 Pedri'
+ */
+export function formatPlayerDisplayName(name: string, number: number): string {
+  const cleanName = (name || '').trim();
+  if (!cleanName) return `${number}`;
+
+  const parts = cleanName.split(/\s+/).filter(Boolean);
+  if (parts.length === 1) {
+    return `${number} ${parts[0]}`;
+  }
+
+  // Already prefixed by initial like "K. Mbappé"
+  if (/^[A-Z]\./i.test(parts[0])) {
+    return `${number} ${cleanName}`;
+  }
+
+  const firstName = parts[0];
+  const lastName = parts.slice(1).join(' ');
+  const firstInitial = firstName.charAt(0).toUpperCase();
+
+  return `${number} ${firstInitial}. ${lastName}`;
+}
+
 export const LineupsTab: React.FC<LineupsTabProps> = ({ matchId }) => {
   const { t } = useTranslation();
   const [lineups, setLineups] = useState<MatchLineups | null>(null);
@@ -113,44 +152,72 @@ export const LineupsTab: React.FC<LineupsTabProps> = ({ matchId }) => {
         </svg>
 
         {/* Starting XI Players - Home Team (Left Half) */}
-        {home.startingXI.map((player: PitchPlayer) => (
-          <div
-            key={player.id}
-            style={{ left: `${player.gridX}%`, top: `${player.gridY}%` }}
-            className="absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group cursor-pointer"
-            title={`${player.name} (#${player.number}) - ${player.position}`}
-          >
-            <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-brand-500 border-2 border-white text-slate-950 font-extrabold text-[10px] sm:text-xs flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-              {player.number}
+        {home.startingXI.map((player: PitchPlayer) => {
+          const displayName = formatPlayerDisplayName(player.name, player.number);
+          const faceUrl = getPlayerFaceUrl(player);
+          return (
+            <div
+              key={player.id}
+              style={{ left: `${player.gridX}%`, top: `${player.gridY}%` }}
+              className="absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group cursor-pointer z-10"
+              title={`${player.name} (#${player.number}) - ${player.position}`}
+            >
+              <div className="relative">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-surface-900 border-2 border-brand-400 overflow-hidden shadow-lg group-hover:scale-110 group-hover:border-white transition-all flex items-center justify-center">
+                  <img
+                    src={faceUrl}
+                    alt={player.name}
+                    className="w-full h-full object-cover object-top"
+                    loading="lazy"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = DEFAULT_PLAYER_AVATAR;
+                    }}
+                  />
+                </div>
+                <span className="absolute -bottom-1 -right-1 min-w-[15px] h-3.5 sm:min-w-[18px] sm:h-4 px-1 rounded-full bg-brand-500 border border-white text-slate-950 font-black text-[8px] sm:text-[9px] leading-tight flex items-center justify-center shadow">
+                  {player.number}
+                </span>
+              </div>
+              <span className="text-[8px] sm:text-[10px] font-bold text-white bg-surface-900/95 px-1.5 py-0.5 rounded-md mt-1 shadow-md whitespace-nowrap border border-white/10 max-w-[85px] sm:max-w-[110px] truncate text-center">
+                {displayName}
+              </span>
             </div>
-            <span className="text-[9px] sm:text-[11px] font-bold text-white bg-surface-900/90 px-1.5 py-0.5 rounded mt-0.5 shadow whitespace-nowrap border border-white/10">
-              {player.name}
-            </span>
-            <span className="text-[8px] sm:text-[9px] font-mono text-brand-300">
-              {player.position}
-            </span>
-          </div>
-        ))}
+          );
+        })}
 
         {/* Starting XI Players - Away Team (Right Half) */}
-        {away.startingXI.map((player: PitchPlayer) => (
-          <div
-            key={player.id}
-            style={{ left: `${player.gridX}%`, top: `${player.gridY}%` }}
-            className="absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group cursor-pointer"
-            title={`${player.name} (#${player.number}) - ${player.position}`}
-          >
-            <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-accent-cyan border-2 border-white text-slate-950 font-extrabold text-[10px] sm:text-xs flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-              {player.number}
+        {away.startingXI.map((player: PitchPlayer) => {
+          const displayName = formatPlayerDisplayName(player.name, player.number);
+          const faceUrl = getPlayerFaceUrl(player);
+          return (
+            <div
+              key={player.id}
+              style={{ left: `${player.gridX}%`, top: `${player.gridY}%` }}
+              className="absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group cursor-pointer z-10"
+              title={`${player.name} (#${player.number}) - ${player.position}`}
+            >
+              <div className="relative">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-surface-900 border-2 border-accent-cyan overflow-hidden shadow-lg group-hover:scale-110 group-hover:border-white transition-all flex items-center justify-center">
+                  <img
+                    src={faceUrl}
+                    alt={player.name}
+                    className="w-full h-full object-cover object-top"
+                    loading="lazy"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = DEFAULT_PLAYER_AVATAR;
+                    }}
+                  />
+                </div>
+                <span className="absolute -bottom-1 -right-1 min-w-[15px] h-3.5 sm:min-w-[18px] sm:h-4 px-1 rounded-full bg-accent-cyan border border-white text-slate-950 font-black text-[8px] sm:text-[9px] leading-tight flex items-center justify-center shadow">
+                  {player.number}
+                </span>
+              </div>
+              <span className="text-[8px] sm:text-[10px] font-bold text-white bg-surface-900/95 px-1.5 py-0.5 rounded-md mt-1 shadow-md whitespace-nowrap border border-white/10 max-w-[85px] sm:max-w-[110px] truncate text-center">
+                {displayName}
+              </span>
             </div>
-            <span className="text-[9px] sm:text-[11px] font-bold text-white bg-surface-900/90 px-1.5 py-0.5 rounded mt-0.5 shadow whitespace-nowrap border border-white/10">
-              {player.name}
-            </span>
-            <span className="text-[8px] sm:text-[9px] font-mono text-cyan-300">
-              {player.position}
-            </span>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* COACHES & SUBSTITUTES SECTION */}
@@ -173,14 +240,25 @@ export const LineupsTab: React.FC<LineupsTabProps> = ({ matchId }) => {
               {t('substitutes')} ({home.substitutes.length})
             </span>
             <div className="grid grid-cols-2 gap-2 text-xs">
-              {home.substitutes.map((sub: PitchPlayer) => (
-                <div key={sub.id} className="flex items-center gap-2 p-1.5 rounded-lg bg-surface-850 border border-surface-750">
-                  <span className="w-5 h-5 rounded-full bg-brand-500/20 text-brand-400 font-bold flex items-center justify-center text-[10px]">
-                    {sub.number}
-                  </span>
-                  <span className="text-slate-200 truncate">{sub.name}</span>
-                </div>
-              ))}
+              {home.substitutes.map((sub: PitchPlayer) => {
+                const subDisplayName = formatPlayerDisplayName(sub.name, sub.number);
+                const faceUrl = getPlayerFaceUrl(sub);
+                return (
+                  <div key={sub.id} className="flex items-center gap-2 p-1.5 rounded-lg bg-surface-850 border border-surface-750">
+                    <div className="w-6 h-6 rounded-full overflow-hidden border border-brand-400/40 bg-surface-800 flex-shrink-0 flex items-center justify-center">
+                      <img
+                        src={faceUrl}
+                        alt={sub.name}
+                        className="w-full h-full object-cover object-top"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = DEFAULT_PLAYER_AVATAR;
+                        }}
+                      />
+                    </div>
+                    <span className="text-slate-200 truncate">{subDisplayName}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -202,14 +280,25 @@ export const LineupsTab: React.FC<LineupsTabProps> = ({ matchId }) => {
               {t('substitutes')} ({away.substitutes.length})
             </span>
             <div className="grid grid-cols-2 gap-2 text-xs">
-              {away.substitutes.map((sub: PitchPlayer) => (
-                <div key={sub.id} className="flex items-center gap-2 p-1.5 rounded-lg bg-surface-850 border border-surface-750">
-                  <span className="w-5 h-5 rounded-full bg-cyan-500/20 text-accent-cyan font-bold flex items-center justify-center text-[10px]">
-                    {sub.number}
-                  </span>
-                  <span className="text-slate-200 truncate">{sub.name}</span>
-                </div>
-              ))}
+              {away.substitutes.map((sub: PitchPlayer) => {
+                const subDisplayName = formatPlayerDisplayName(sub.name, sub.number);
+                const faceUrl = getPlayerFaceUrl(sub);
+                return (
+                  <div key={sub.id} className="flex items-center gap-2 p-1.5 rounded-lg bg-surface-850 border border-surface-750">
+                    <div className="w-6 h-6 rounded-full overflow-hidden border border-accent-cyan/40 bg-surface-800 flex-shrink-0 flex items-center justify-center">
+                      <img
+                        src={faceUrl}
+                        alt={sub.name}
+                        className="w-full h-full object-cover object-top"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = DEFAULT_PLAYER_AVATAR;
+                        }}
+                      />
+                    </div>
+                    <span className="text-slate-200 truncate">{subDisplayName}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
