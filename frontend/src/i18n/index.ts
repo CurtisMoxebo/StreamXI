@@ -5,10 +5,10 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 export const SUPPORTED_LANGUAGES = ['en', 'fr', 'es'] as const;
 export type SupportedLanguage = typeof SUPPORTED_LANGUAGES[number];
 
-export const LANGUAGE_FLAGS: Record<SupportedLanguage, { flag: string; label: string; name: string }> = {
-  en: { flag: '🇬🇧', label: 'EN', name: 'English' },
-  fr: { flag: '🇫🇷', label: 'FR', name: 'Français' },
-  es: { flag: '🇪🇸', label: 'ES', name: 'Español' },
+export const LANGUAGE_FLAGS: Record<SupportedLanguage, { flag: string; flagUrl: string; label: string; name: string }> = {
+  en: { flag: '🇬🇧', flagUrl: 'https://flagcdn.com/w40/gb.png', label: 'EN', name: 'English' },
+  fr: { flag: '🇫🇷', flagUrl: 'https://flagcdn.com/w40/fr.png', label: 'FR', name: 'Français' },
+  es: { flag: '🇪🇸', flagUrl: 'https://flagcdn.com/w40/es.png', label: 'ES', name: 'Español' },
 };
 
 export function detectBrowserLanguage(): SupportedLanguage {

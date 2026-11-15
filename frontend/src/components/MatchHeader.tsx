@@ -51,7 +51,7 @@ export const MatchHeader: React.FC<MatchHeaderProps> = ({ match }) => {
         {/* Home Team */}
         <div className="col-span-5 flex flex-col items-center sm:items-end justify-center text-center sm:text-right">
           <div className="flex items-center justify-center sm:justify-end gap-2.5">
-            <TeamFlag team={match.homeTeam} className="w-8 h-5.5" />
+            <TeamFlag team={match.homeTeam} className="w-8 h-5" />
             <h2 className="font-display font-bold text-base sm:text-2xl text-white">
               {match.homeTeam.name}
             </h2>
@@ -102,7 +102,7 @@ export const MatchHeader: React.FC<MatchHeaderProps> = ({ match }) => {
         {/* Away Team */}
         <div className="col-span-5 flex flex-col items-center sm:items-start justify-center text-center sm:text-left">
           <div className="flex items-center justify-center sm:justify-start gap-2.5">
-            <TeamFlag team={match.awayTeam} className="w-8 h-5.5" />
+            <TeamFlag team={match.awayTeam} className="w-8 h-5" />
             <h2 className="font-display font-bold text-base sm:text-2xl text-white">
               {match.awayTeam.name}
             </h2>

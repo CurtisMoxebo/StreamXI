@@ -109,7 +109,13 @@ export const Header: React.FC<HeaderProps> = ({ onOpenDrawer, searchQuery, onSea
               aria-expanded={isLangMenuOpen}
               aria-label="Language selector"
             >
-              <span className="text-base leading-none">{currentLangInfo.flag}</span>
+              <div className="w-5 h-3.5 flex-shrink-0 overflow-hidden rounded-[2px] shadow-sm flex items-center justify-center">
+                <img
+                  src={currentLangInfo.flagUrl}
+                  alt={currentLangInfo.label}
+                  className="w-full h-full object-cover"
+                />
+              </div>
               <span>{currentLangInfo.label}</span>
               <svg className="w-3.5 h-3.5 text-slate-400 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -124,13 +130,19 @@ export const Header: React.FC<HeaderProps> = ({ onOpenDrawer, searchQuery, onSea
                     <button
                       key={lang}
                       onClick={() => handleLanguageChange(lang)}
-                      className={`w-full flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium text-left transition-colors ${
+                      className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-medium text-left transition-colors ${
                         currentLang === lang
                           ? 'text-brand-400 bg-surface-750'
                           : 'text-slate-300 hover:text-white hover:bg-surface-750'
                       }`}
                     >
-                      <span className="text-lg leading-none">{info.flag}</span>
+                      <div className="w-5 h-3.5 flex-shrink-0 overflow-hidden rounded-[2px] shadow-sm flex items-center justify-center">
+                        <img
+                          src={info.flagUrl}
+                          alt={info.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
                       <span>{info.name} ({info.label})</span>
                     </button>
                   );

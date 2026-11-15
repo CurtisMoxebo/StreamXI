@@ -194,22 +194,25 @@ export function getCompetitionLogo(comp?: Partial<Competition> | null): string {
   return 'https://a.espncdn.com/i/leaguelogos/soccer/500/2395.png';
 }
 
-interface TeamFlagProps {
+export interface TeamFlagProps {
   team: Team;
   className?: string;
+  imgClassName?: string;
 }
 
 /**
- * Clean rectangular flag image without circles, borders, or codes.
+ * Clean rectangular flag image with strict fixed-width box ensuring pixel-perfect vertical alignment.
  */
-export const TeamFlag: React.FC<TeamFlagProps> = ({ team, className = 'w-6 h-4' }) => {
+export const TeamFlag: React.FC<TeamFlagProps> = ({ team, className = 'w-6 h-4', imgClassName = '' }) => {
   const flagUrl = getTeamFlagUrl(team);
   return (
-    <img
-      src={flagUrl}
-      alt={team.country || team.name}
-      className={`object-cover rounded-sm shadow-sm flex-shrink-0 ${className}`}
-      loading="lazy"
-    />
+    <div className={`inline-flex items-center justify-center overflow-hidden rounded-[2px] shadow-sm flex-shrink-0 ${className}`}>
+      <img
+        src={flagUrl}
+        alt={team.country || team.name}
+        className={`w-full h-full object-cover ${imgClassName}`}
+        loading="lazy"
+      />
+    </div>
   );
 };

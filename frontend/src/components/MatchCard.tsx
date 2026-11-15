@@ -78,7 +78,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match }) => {
           {/* Home Team */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <TeamFlag team={match.homeTeam} className="w-5.5 h-3.5" />
+              <TeamFlag team={match.homeTeam} className="w-6 h-4" />
               <span className="font-semibold text-sm sm:text-base text-slate-100">
                 {match.homeTeam.name}
               </span>
@@ -111,7 +111,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match }) => {
           {/* Away Team */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <TeamFlag team={match.awayTeam} className="w-5.5 h-3.5" />
+              <TeamFlag team={match.awayTeam} className="w-6 h-4" />
               <span className="font-semibold text-sm sm:text-base text-slate-100">
                 {match.awayTeam.name}
               </span>

@@ -11,6 +11,9 @@ describe('Frontend Step 1: i18n Multilingual & Setup Tests', () => {
     expect(LANGUAGE_FLAGS.en.flag).toBe('🇬🇧');
     expect(LANGUAGE_FLAGS.fr.flag).toBe('🇫🇷');
     expect(LANGUAGE_FLAGS.es.flag).toBe('🇪🇸');
+    expect(LANGUAGE_FLAGS.en.flagUrl).toContain('flagcdn.com/w40/gb.png');
+    expect(LANGUAGE_FLAGS.fr.flagUrl).toContain('flagcdn.com/w40/fr.png');
+    expect(LANGUAGE_FLAGS.es.flagUrl).toContain('flagcdn.com/w40/es.png');
   });
 
   it('detects language based on browser language, defaulting to "en" if neither en, fr, nor es', () => {
