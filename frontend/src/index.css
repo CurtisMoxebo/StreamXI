@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0b0f19;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+.match-card {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.match-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px -6px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(16, 185, 129, 0.25);
+}
+
+.red-card-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 10px;
+  height: 14px;
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+  border-radius: 2px;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
